@@ -1,122 +1,60 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from './assets/vite.svg'
-import heroImg from './assets/hero.png'
-import './App.css'
+import React, { useState } from 'react';
+import TeacherDashboard from './TeacherDashboard';
+import StudentPortal from './StudentPortal';
+import './App.css';
 
+// הקומפוננטה הראשית של האפליקציה.
+// מנהלת את תצוגת לוח המחוונים של המורה או פורטל הסטודנטים.
 function App() {
-  const [count, setCount] = useState(0)
+  // סטייט לשמירת התפקיד הנוכחי: 'teacher' או 'student'.
+  const [role, setRole] = useState('teacher'); 
+
+  // פונקציה שמחליפה בין התפקידים (מורה/סטודנט).
+  const toggleRole = () => {
+    setRole(prevRole => (prevRole === 'teacher' ? 'student' : 'teacher'));
+  };
 
   return (
-    <>
-      <section id="center">
-        <div className="hero">
-          <img src={heroImg} className="base" width="170" height="179" alt="" />
-          <img src={reactLogo} className="framework" alt="React logo" />
-          <img src={viteLogo} className="vite" alt="Vite logo" />
+    // עוטף את כל האפליקציה ב-div עם עיצוב בסיסי של Bootstrap.
+    <div className="min-vh-100 bg-light">
+      // סרגל ניווט עליון עם כותרת וכפתור החלפת תפקידים.
+      <nav className="navbar navbar-expand-lg navbar-dark bg-dark mb-4">
+        <div className="container">
+          <span className="navbar-brand">מערכת בחינות אלקטרונית</span>
+          <button 
+            // כפתור להחלפת תפקיד, עם עיצוב שמשתנה לפי התפקיד הנוכחי.
+            className={`btn ${role === 'teacher' ? 'btn-outline-warning' : 'btn-outline-info'}`}
+            onClick={toggleRole}
+          >
+            החלף ל{role === 'teacher' ? 'תלמיד' : 'מורה'} תצוגה
+          </button>
         </div>
-        <div>
-          <h1>Get started</h1>
-          <p>
-            Edit <code>src/App.jsx</code> and save to test <code>HMR</code>
-          </p>
-        </div>
-        <button
-          type="button"
-          className="counter"
-          onClick={() => setCount((count) => count + 1)}
-        >
-          Count is {count}
-        </button>
-      </section>
+      </nav>
 
-      <div className="ticks"></div>
-
-      <section id="next-steps">
-        <div id="docs">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#documentation-icon"></use>
-          </svg>
-          <h2>Documentation</h2>
-          <p>Your questions, answered</p>
-          <ul>
-            <li>
-              <a href="https://vite.dev/" target="_blank">
-                <img className="logo" src={viteLogo} alt="" />
-                Explore Vite
-              </a>
-            </li>
-            <li>
-              <a href="https://react.dev/" target="_blank">
-                <img className="button-icon" src={reactLogo} alt="" />
-                Learn more
-              </a>
-            </li>
-          </ul>
+      <main>
+        // מציג את התפקיד הנוכחי למשתמש.
+        <div className="container text-center mb-4">
+          <div className="alert alert-secondary py-2 d-inline-block">
+            מחובר כרגע בתור: <strong>{role.charAt(0).toUpperCase() + role.slice(1)}</strong>
+          </div>
         </div>
-        <div id="social">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#social-icon"></use>
-          </svg>
-          <h2>Connect with us</h2>
-          <p>Join the Vite community</p>
-          <ul>
-            <li>
-              <a href="https://github.com/vitejs/vite" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#github-icon"></use>
-                </svg>
-                GitHub
-              </a>
-            </li>
-            <li>
-              <a href="https://chat.vite.dev/" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#discord-icon"></use>
-                </svg>
-                Discord
-              </a>
-            </li>
-            <li>
-              <a href="https://x.com/vite_js" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#x-icon"></use>
-                </svg>
-                X.com
-              </a>
-            </li>
-            <li>
-              <a href="https://bsky.app/profile/vite.dev" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#bluesky-icon"></use>
-                </svg>
-                Bluesky
-              </a>
-            </li>
-          </ul>
-        </div>
-      </section>
 
-      <div className="ticks"></div>
-      <section id="spacer"></section>
-    </>
-  )
+        {/* תצוגה מותנית: אם התפקיד הוא 'teacher', מציגים את TeacherDashboard, אחרת את StudentPortal */}
+        {role === 'teacher' ? (
+          <TeacherDashboard />
+        ) : (
+          <StudentPortal />
+        )}
+      </main>
+
+      // פוטר (תחתית העמוד) עם מידע על זכויות יוצרים.
+      <footer className="mt-5 py-4 bg-white border-top text-center text-muted">
+        <div className="container">
+          <p>&copy; 2026 הדגמת מערכת בחינות אלקטרונית Mock API</p>
+        </div>
+      </footer>
+    </div>
+  );
 }
 
-export default App
+export default App; // ייצוא הקומפוננטה הראשית.
