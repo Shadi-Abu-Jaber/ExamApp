@@ -1,0 +1,5 @@
+/* איפוס מינימלי או תוספות מותאמות אישית במידת הצורך */
+body {
+  /* הגדרת גופן ברירת מחדל לאפליקציה */
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+}
