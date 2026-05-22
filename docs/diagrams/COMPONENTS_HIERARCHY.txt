@@ -1,0 +1,170 @@
+ExamFlow - Components Hierarchy Diagram
+=======================================
+
+מטרת הדיאגרמה:
+להציג את מבנה רכיבי ה-Frontend ואת הקשר בין המסכים, ה-Layout והשירותים.
+
+App
+|
+|-- AuthProvider
+|   |
+|   |-- ניהול משתמש מחובר
+|   |-- שמירת Token
+|   |-- בדיקת הרשאות
+|
+|-- Public Routes
+|   |
+|   |-- Login
+|   |   |-- Input
+|   |   |-- Button
+|   |   |-- Alert
+|   |
+|   |-- Register
+|       |-- Input
+|       |-- Button
+|       |-- Alert
+|
+|-- ProtectedRoute
+    |
+    |-- DashboardLayout
+        |
+        |-- Sidebar / Navigation Menu
+        |   |
+        |   |-- קישורים לפי תפקיד המשתמש
+        |   |-- Admin Navigation
+        |   |-- Lecturer Navigation
+        |   |-- Student Navigation
+        |
+        |-- Page Content
+            |
+            |-- Admin Pages
+            |   |
+            |   |-- AdminDashboard
+            |   |-- UsersPage
+            |   |-- ExamsPage
+            |
+            |-- Lecturer Pages
+            |   |
+            |   |-- LecturerDashboard
+            |   |-- ExamList
+            |   |-- ExamForm
+            |   |-- ExamQuestions
+            |   |-- ExamSubmissions
+            |   |-- GradeSubmission
+            |   |-- ExamMonitor
+            |   |-- LecturerAnalytics
+            |   |-- AiTools
+            |
+            |-- Student Pages
+                |
+                |-- StudentDashboard
+                |   |
+                |   |-- Summary Cards
+                |   |-- Available Exams Preview
+                |   |-- Recent Results Preview
+                |
+                |-- ExamList
+                |   |
+                |   |-- Search Input
+                |   |-- Status Filter
+                |   |-- Exam Cards
+                |   |-- Start Exam Button
+                |
+                |-- ExamStart
+                |   |
+                |   |-- Timer
+                |   |-- Question Display
+                |   |-- Question Navigator
+                |   |-- Answer Input
+                |   |-- Auto Save Status
+                |   |-- Submit Button
+                |
+                |-- StudentResults
+                |   |
+                |   |-- Statistics Cards
+                |   |-- Results List
+                |   |-- View Details Button
+                |
+                |-- ResultDetail
+                    |
+                    |-- Score Summary
+                    |-- General Feedback
+                    |-- Question Review
+                    |-- Print Result Button
+
+
+Shared UI Components
+====================
+
+PageHeader
+- מציג כותרת, תיאור ופעולות עבור כל דף.
+
+Card
+- משמש להצגת מידע בתוך כרטיס מעוצב.
+
+Button
+- כפתור פעולה משותף למערכת.
+
+Input
+- שדה קלט טקסט.
+
+Textarea
+- שדה להזנת תשובות פתוחות.
+
+Alert
+- הודעת הצלחה או שגיאה.
+
+Badge
+- הצגת סטטוס קצר, לדוגמה PUBLISHED או GRADED.
+
+EmptyState
+- הודעה כאשר אין נתונים להצגה.
+
+LoadingSpinner
+- חיווי טעינה בזמן קבלת נתונים.
+
+
+Services Used by Student Pages
+==============================
+
+StudentDashboard
+|
+|-- StudentService.listAvailableExams()
+|-- StudentService.listResults()
+
+ExamList
+|
+|-- StudentService.listAvailableExams()
+
+ExamStart
+|
+|-- StudentService.startExam()
+|-- StudentService.getExamQuestions()
+|-- StudentService.listAvailableExams()
+|-- SubmissionService.getSubmission()
+|-- SubmissionService.saveAnswer()
+|-- SubmissionService.submitExam()
+
+StudentResults
+|
+|-- StudentService.listResults()
+
+ResultDetail
+|
+|-- StudentService.getResult()
+
+
+Service Data Source Decision
+============================
+
+Student Page
+    |
+    v
+StudentService / SubmissionService
+    |
+    v
+ConfigurationService.isMockMode()
+    |
+    |-- true  --> MockDbService --> localStorage
+    |
+    |-- false --> ApiService --> Backend API --> Database
