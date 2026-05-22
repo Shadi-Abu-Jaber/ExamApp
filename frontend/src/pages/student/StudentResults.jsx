@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 
-import { fetchResults } from '../../api/student';
+import studentService from '../../services/StudentService';
 
 import PageHeader from '../../components/PageHeader';
 import Card from '../../components/Card';
@@ -24,11 +24,15 @@ const StudentResults = () => {
     setError('');
 
     try {
-      const res = await fetchResults();
-      setResults(res.data || []);
+      const resultsData = await studentService.listResults();
+      setResults(resultsData || []);
     } catch (err) {
       setResults([]);
-      setError(err.response?.data?.message || 'Unable to load results.');
+      setError(
+        err.response?.data?.message ||
+          err.message ||
+          'Unable to load results.'
+      );
     } finally {
       setLoading(false);
     }
@@ -40,7 +44,10 @@ const StudentResults = () => {
 
   const filteredResults = useMemo(() => {
     return results.filter((result) => {
-      const text = `${result.exam?.title || ''} ${result.exam?.description || ''}`.toLowerCase();
+      const text = `${result.exam?.title || ''} ${
+        result.exam?.description || ''
+      }`.toLowerCase();
+
       return text.includes(search.toLowerCase());
     });
   }, [results, search]);
@@ -61,7 +68,9 @@ const StudentResults = () => {
 
     const highestScore =
       gradedResults.length > 0
-        ? Math.max(...gradedResults.map((result) => Number(result.totalScore || 0)))
+        ? Math.max(
+            ...gradedResults.map((result) => Number(result.totalScore || 0))
+          )
         : 0;
 
     return {
@@ -143,7 +152,7 @@ const StudentResults = () => {
         <Input
           label="Search results"
           value={search}
-          onChange={(e) => setSearch(e.target.value)}
+          onChange={(event) => setSearch(event.target.value)}
           placeholder="Search by exam title or description..."
         />
       </Card>
@@ -152,7 +161,7 @@ const StudentResults = () => {
         <Card className="flex min-h-[260px] items-center justify-center">
           <LoadingSpinner />
         </Card>
-      ) : filteredResults.length ? (
+      ) : filteredResults.length > 0 ? (
         <div className="space-y-4">
           {filteredResults.map((result) => (
             <Card key={result.id}>
@@ -223,7 +232,7 @@ const StudentResults = () => {
         <EmptyState
           title="No results"
           description={
-            results.length
+            results.length > 0
               ? 'No results match your current search.'
               : 'No published results yet. Results will appear here after your lecturer publishes them.'
           }
