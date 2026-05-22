@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 
-import { fetchAssignedExams } from '../../api/student';
+import studentService from '../../services/StudentService';
 
 import PageHeader from '../../components/PageHeader';
 import Card from '../../components/Card';
@@ -25,11 +25,15 @@ const ExamList = () => {
     setError('');
 
     try {
-      const res = await fetchAssignedExams();
-      setExams(res.data || []);
+      const examsData = await studentService.listAvailableExams();
+      setExams(examsData || []);
     } catch (err) {
       setExams([]);
-      setError(err.response?.data?.message || 'Unable to load assigned exams.');
+      setError(
+        err.response?.data?.message ||
+          err.message ||
+          'Unable to load assigned exams.'
+      );
     } finally {
       setLoading(false);
     }
@@ -46,6 +50,7 @@ const ExamList = () => {
       }`.toLowerCase();
 
       const matchesSearch = text.includes(search.toLowerCase());
+
       const matchesStatus =
         statusFilter === 'ALL' || exam.status === statusFilter;
 
@@ -130,7 +135,7 @@ const ExamList = () => {
           <Input
             label="Search exams"
             value={search}
-            onChange={(e) => setSearch(e.target.value)}
+            onChange={(event) => setSearch(event.target.value)}
             placeholder="Search by title, description, or lecturer..."
           />
 
@@ -141,7 +146,7 @@ const ExamList = () => {
 
             <select
               value={statusFilter}
-              onChange={(e) => setStatusFilter(e.target.value)}
+              onChange={(event) => setStatusFilter(event.target.value)}
               className="w-full rounded-xl border border-slate-300 bg-white px-4 py-2.5 text-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
             >
               <option value="ALL">All statuses</option>

@@ -1,14 +1,8 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 
-import {
-  fetchAssignedExams,
-  startExam,
-  getSubmission,
-  saveAnswer,
-  submitExam,
-  fetchExamQuestions,
-} from '../../api/student';
+import studentService from '../../services/StudentService';
+import submissionService from '../../services/SubmissionService';
 
 import PageHeader from '../../components/PageHeader';
 import Card from '../../components/Card';
@@ -46,35 +40,50 @@ const ExamStart = () => {
     setError('');
 
     try {
-      const response = await startExam(id);
-      const result = await getSubmission(response.data.id);
-      const questionsResponse = await fetchExamQuestions(id);
-      const assignedExamsResponse = await fetchAssignedExams();
+      const startedSubmission = await studentService.startExam(id);
+      const submissionId =
+        startedSubmission.id || startedSubmission.submissionId;
 
-      const sortedQuestions = (questionsResponse.data || []).sort(
+      if (!submissionId) {
+        throw new Error('Submission id was not returned.');
+      }
+
+      const submissionData = await submissionService.getSubmission(
+        submissionId
+      );
+
+      const questionsData = await studentService.getExamQuestions(id);
+      const availableExamsData = await studentService.listAvailableExams();
+
+      const sortedQuestions = [...(questionsData || [])].sort(
         (a, b) => Number(a.orderIndex || 0) - Number(b.orderIndex || 0)
       );
 
-      const exam = assignedExamsResponse.data.find((item) => item.id === id);
+      const assignedExam = (availableExamsData || []).find(
+        (item) => item.id === id
+      );
 
-      setSubmission(result.data);
+      const exam = assignedExam || submissionData.exam || null;
+
+      setSubmission(submissionData);
       setQuestions(sortedQuestions);
-      setExamDetails(exam || result.data.exam || null);
+      setExamDetails(exam);
 
       if (exam?.endTime) {
         const remaining = Math.max(
           0,
           new Date(exam.endTime).getTime() - Date.now()
         );
+
         setTimer(Math.ceil(remaining / 1000));
       } else if (exam?.durationMinutes) {
         setTimer(Number(exam.durationMinutes) * 60);
       }
 
-      if (result.data.answers && result.data.answers.length > 0) {
+      if (submissionData.answers && submissionData.answers.length > 0) {
         const restored = {};
 
-        result.data.answers.forEach((answer) => {
+        submissionData.answers.forEach((answer) => {
           restored[answer.questionId] =
             answer.selectedOptionId || answer.answerText || '';
         });
@@ -82,7 +91,11 @@ const ExamStart = () => {
         setAnswerData(restored);
       }
     } catch (err) {
-      setError(err.response?.data?.message || 'Failed to start exam.');
+      setError(
+        err.response?.data?.message ||
+          err.message ||
+          'Failed to start exam.'
+      );
 
       setTimeout(() => {
         navigate('/student/exams');
@@ -101,12 +114,17 @@ const ExamStart = () => {
     setSubmitting(true);
 
     try {
-      await saveCurrentAnswer();
-      await submitExam(submission.id);
+      await saveCurrentAnswer(false);
+      await submissionService.submitExam(submission.id);
+
       setSubmitted(true);
       navigate('/student/results', { replace: true });
     } catch (err) {
-      setError(err.response?.data?.message || 'Failed to auto-submit exam.');
+      setError(
+        err.response?.data?.message ||
+          err.message ||
+          'Failed to auto-submit exam.'
+      );
     } finally {
       setSubmitting(false);
     }
@@ -150,18 +168,25 @@ const ExamStart = () => {
     const diff = Math.floor((Date.now() - savedAt) / 1000);
 
     if (diff < 5) return 'Saved just now';
+
     return `Saved ${diff}s ago`;
   }, [savedAt, saving]);
 
   const progressPercent = useMemo(() => {
     if (!questions.length) return 0;
+
     return Math.round(((currentQuestion + 1) / questions.length) * 100);
   }, [currentQuestion, questions.length]);
 
   const answeredCount = useMemo(() => {
     return questions.filter((question) => {
       const value = answerData[question.id];
-      return value !== undefined && value !== null && String(value).trim() !== '';
+
+      return (
+        value !== undefined &&
+        value !== null &&
+        String(value).trim() !== ''
+      );
     }).length;
   }, [questions, answerData]);
 
@@ -174,10 +199,11 @@ const ExamStart = () => {
   };
 
   const updateAnswer = (questionId, value) => {
-    setAnswerData((prev) => ({
-      ...prev,
+    setAnswerData((previousData) => ({
+      ...previousData,
       [questionId]: value,
     }));
+
     setSaveStatus('');
   };
 
@@ -204,7 +230,11 @@ const ExamStart = () => {
 
     const value = answerData[current.id];
 
-    if (value === undefined || value === null || String(value).trim() === '') {
+    if (
+      value === undefined ||
+      value === null ||
+      String(value).trim() === ''
+    ) {
       return;
     }
 
@@ -216,7 +246,8 @@ const ExamStart = () => {
 
     try {
       const payload = buildAnswerPayload(current);
-      await saveAnswer(submission.id, payload);
+
+      await submissionService.saveAnswer(submission.id, payload);
 
       setSavedAt(Date.now());
 
@@ -225,7 +256,12 @@ const ExamStart = () => {
       }
     } catch (err) {
       setSaveStatus('Error saving');
-      setError(err.response?.data?.message || 'Failed to save answer.');
+
+      setError(
+        err.response?.data?.message ||
+          err.message ||
+          'Failed to save answer.'
+      );
     } finally {
       setSaving(false);
     }
@@ -238,12 +274,18 @@ const ExamStart = () => {
 
   const goNext = async () => {
     await saveCurrentAnswer(false);
-    setCurrentQuestion((prev) => Math.min(questions.length - 1, prev + 1));
+
+    setCurrentQuestion((previousQuestion) =>
+      Math.min(questions.length - 1, previousQuestion + 1)
+    );
   };
 
   const goPrevious = async () => {
     await saveCurrentAnswer(false);
-    setCurrentQuestion((prev) => Math.max(0, prev - 1));
+
+    setCurrentQuestion((previousQuestion) =>
+      Math.max(0, previousQuestion - 1)
+    );
   };
 
   const handleSubmit = async () => {
@@ -260,12 +302,16 @@ const ExamStart = () => {
 
     try {
       await saveCurrentAnswer(false);
-      await submitExam(submission.id);
+      await submissionService.submitExam(submission.id);
 
       setSubmitted(true);
       navigate('/student/results', { replace: true });
     } catch (err) {
-      setError(err.response?.data?.message || 'Failed to submit exam.');
+      setError(
+        err.response?.data?.message ||
+          err.message ||
+          'Failed to submit exam.'
+      );
     } finally {
       setSubmitting(false);
     }
@@ -289,6 +335,7 @@ const ExamStart = () => {
           title="Exam"
           subtitle="Unable to continue exam"
         />
+
         <Alert type="error">{error}</Alert>
       </>
     );
@@ -301,6 +348,7 @@ const ExamStart = () => {
           title="Exam in Progress"
           subtitle="Loading exam questions..."
         />
+
         <Card className="flex min-h-[260px] items-center justify-center">
           <LoadingSpinner />
         </Card>
@@ -315,7 +363,10 @@ const ExamStart = () => {
     <>
       <PageHeader
         title={examDetails?.title || 'Exam in Progress'}
-        subtitle={examDetails?.description || 'Answer all questions and submit before time ends'}
+        subtitle={
+          examDetails?.description ||
+          'Answer all questions and submit before time ends'
+        }
       />
 
       <div className="mb-6 grid gap-4 xl:grid-cols-[1fr_280px]">
@@ -388,7 +439,9 @@ const ExamStart = () => {
         <div className="space-y-6">
           <Card>
             <div className="mb-5 flex flex-wrap items-center gap-2">
-              <Badge variant="info">{getTypeLabel(current.questionType)}</Badge>
+              <Badge variant="info">
+                {getTypeLabel(current.questionType)}
+              </Badge>
 
               <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-600">
                 {current.points || 0} points
@@ -428,7 +481,9 @@ const ExamStart = () => {
             ) : (
               <Textarea
                 value={answerData[current.id] || ''}
-                onChange={(e) => updateAnswer(current.id, e.target.value)}
+                onChange={(event) =>
+                  updateAnswer(current.id, event.target.value)
+                }
                 placeholder="Write your answer here..."
                 rows={current.questionType === 'ESSAY' ? 10 : 4}
               />

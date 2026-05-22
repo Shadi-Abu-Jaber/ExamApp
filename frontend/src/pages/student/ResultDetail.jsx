@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 
-import { fetchResult } from '../../api/student';
+import studentService from '../../services/StudentService';
 
 import PageHeader from '../../components/PageHeader';
 import Card from '../../components/Card';
@@ -23,11 +23,15 @@ const ResultDetail = () => {
     setError('');
 
     try {
-      const res = await fetchResult(id);
-      setSubmission(res.data);
+      const resultData = await studentService.getResult(id);
+      setSubmission(resultData);
     } catch (err) {
       setSubmission(null);
-      setError(err.response?.data?.message || 'Unable to load result details.');
+      setError(
+        err.response?.data?.message ||
+          err.message ||
+          'Unable to load result details.'
+      );
     } finally {
       setLoading(false);
     }
@@ -37,7 +41,25 @@ const ResultDetail = () => {
     loadResult();
   }, [id]);
 
-  const answers = submission?.answers || [];
+  const answers = useMemo(() => {
+    const rawAnswers = submission?.answers || [];
+    const examQuestions = submission?.exam?.questions || [];
+
+    return rawAnswers.map((answer) => {
+      if (answer.question) {
+        return answer;
+      }
+
+      const question = examQuestions.find(
+        (item) => item.id === answer.questionId
+      );
+
+      return {
+        ...answer,
+        question: question || null,
+      };
+    });
+  }, [submission]);
 
   const maxPoints = useMemo(() => {
     return answers.reduce(
@@ -55,7 +77,14 @@ const ResultDetail = () => {
 
   const percentage = useMemo(() => {
     if (!maxPoints) return 0;
-    return Math.round((Number(submission?.totalScore || earnedPoints) / maxPoints) * 100);
+
+    const finalScore =
+      submission?.totalScore !== null &&
+      submission?.totalScore !== undefined
+        ? Number(submission.totalScore)
+        : earnedPoints;
+
+    return Math.round((finalScore / maxPoints) * 100);
   }, [submission, earnedPoints, maxPoints]);
 
   const getQuestionOptions = (answer) => {
@@ -124,6 +153,7 @@ const ResultDetail = () => {
           title="Result Details"
           subtitle="Loading your published result..."
         />
+
         <Card className="flex min-h-[260px] items-center justify-center">
           <LoadingSpinner />
         </Card>
@@ -137,7 +167,7 @@ const ResultDetail = () => {
         <PageHeader
           title="Result Details"
           subtitle="Unable to display result"
-          action={
+          actions={
             <Link to="/student/results">
               <Button variant="secondary">Back to Results</Button>
             </Link>
@@ -154,7 +184,7 @@ const ResultDetail = () => {
       <PageHeader
         title="Result Details"
         subtitle={submission.exam?.title || 'Published exam result'}
-        action={
+        actions={
           <div className="flex gap-2">
             <Button type="button" variant="secondary" onClick={handlePrint}>
               Print Result
@@ -255,12 +285,13 @@ const ResultDetail = () => {
           <h2 className="text-xl font-semibold text-slate-900">
             Question Review
           </h2>
+
           <p className="mt-1 text-sm text-slate-500">
             Review your answers, correct answers, score, and lecturer feedback.
           </p>
         </div>
 
-        {answers.length ? (
+        {answers.length > 0 ? (
           <div className="space-y-5">
             {answers.map((answer, index) => {
               const question = answer.question || {};
@@ -295,6 +326,7 @@ const ResultDetail = () => {
                       <p className="text-xs font-medium text-blue-700">
                         Score
                       </p>
+
                       <p className="text-2xl font-bold text-blue-700">
                         {answer.score ?? 0} / {questionPoints}
                       </p>

@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 
-import { fetchAssignedExams } from '../../api/student';
+import studentService from '../../services/StudentService';
 
 import PageHeader from '../../components/PageHeader';
 import Card from '../../components/Card';
@@ -10,64 +10,78 @@ import EmptyState from '../../components/EmptyState';
 import LoadingSpinner from '../../components/LoadingSpinner';
 import Alert from '../../components/Alert';
 import Badge from '../../components/Badge';
-import Input from '../../components/Input';
 
-const ExamList = () => {
+const StudentDashboard = () => {
   const [exams, setExams] = useState([]);
+  const [results, setResults] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
-  const [search, setSearch] = useState('');
-  const [statusFilter, setStatusFilter] = useState('ALL');
-
-  const loadExams = async () => {
+  const loadDashboard = async () => {
     setLoading(true);
     setError('');
 
     try {
-      const res = await fetchAssignedExams();
-      setExams(res.data || []);
+      const [availableExamsData, resultsData] = await Promise.all([
+        studentService.listAvailableExams(),
+        studentService.listResults(),
+      ]);
+
+      setExams(availableExamsData || []);
+      setResults(resultsData || []);
     } catch (err) {
       setExams([]);
-      setError(err.response?.data?.message || 'Unable to load assigned exams.');
+      setResults([]);
+      setError(
+        err.response?.data?.message ||
+          err.message ||
+          'Unable to load student dashboard.'
+      );
     } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
-    loadExams();
+    loadDashboard();
   }, []);
 
-  const filteredExams = useMemo(() => {
-    return exams.filter((exam) => {
-      const text = `${exam.title || ''} ${exam.description || ''} ${exam.lecturer?.fullName || ''}`.toLowerCase();
-
-      const matchesSearch = text.includes(search.toLowerCase());
-      const matchesStatus =
-        statusFilter === 'ALL' || exam.status === statusFilter;
-
-      return matchesSearch && matchesStatus;
-    });
-  }, [exams, search, statusFilter]);
-
   const stats = useMemo(() => {
+    const gradedResults = results.filter(
+      (result) =>
+        result.status === 'GRADED' &&
+        result.totalScore !== null &&
+        result.totalScore !== undefined
+    );
+
+    const averageScore =
+      gradedResults.length > 0
+        ? gradedResults.reduce(
+            (sum, result) => sum + Number(result.totalScore || 0),
+            0
+          ) / gradedResults.length
+        : 0;
+
     return {
-      total: exams.length,
-      available: exams.filter((exam) => exam.status === 'PUBLISHED').length,
-      draft: exams.filter((exam) => exam.status === 'DRAFT').length,
-      closed: exams.filter((exam) => exam.status === 'CLOSED').length,
+      availableExams: exams.filter((exam) => exam.status === 'PUBLISHED').length,
+      publishedResults: results.length,
+      gradedResults: gradedResults.length,
+      averageScore: Number(averageScore.toFixed(2)),
     };
+  }, [exams, results]);
+
+  const upcomingExams = useMemo(() => {
+    return exams
+      .filter((exam) => exam.status === 'PUBLISHED')
+      .slice(0, 3);
   }, [exams]);
 
-  const getStatusVariant = (status) => {
-    if (status === 'PUBLISHED') return 'success';
-    if (status === 'CLOSED') return 'danger';
-    return 'warning';
-  };
+  const recentResults = useMemo(() => {
+    return results.slice(0, 3);
+  }, [results]);
 
   const formatDate = (value) => {
-    if (!value) return 'Not set';
+    if (!value) return 'Not available';
 
     try {
       return new Date(value).toLocaleString();
@@ -76,178 +90,210 @@ const ExamList = () => {
     }
   };
 
-  const isExamAvailable = (exam) => {
-    return exam.status === 'PUBLISHED';
+  const getResultVariant = (status) => {
+    if (status === 'GRADED') return 'success';
+    if (status === 'SUBMITTED') return 'warning';
+    return 'default';
   };
+
+  if (loading) {
+    return (
+      <>
+        <PageHeader
+          title="Student Dashboard"
+          subtitle="Loading your exams and results..."
+        />
+
+        <Card className="flex min-h-[260px] items-center justify-center">
+          <LoadingSpinner />
+        </Card>
+      </>
+    );
+  }
 
   return (
     <>
       <PageHeader
-        title="Available Exams"
-        subtitle="View exams assigned to you and start available exams"
+        title="Student Dashboard"
+        subtitle="Track your available exams, submissions, and published results"
+        actions={
+          <div className="flex flex-wrap gap-2">
+            <Link to="/student/exams">
+              <Button>View Exams</Button>
+            </Link>
+
+            <Link to="/student/results">
+              <Button variant="secondary">View Results</Button>
+            </Link>
+          </div>
+        }
       />
 
       {error && (
-        <div className="mb-4">
+        <div className="mb-6">
           <Alert type="error">{error}</Alert>
         </div>
       )}
 
       <div className="mb-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         <Card>
-          <p className="text-sm font-medium text-slate-500">Assigned Exams</p>
+          <p className="text-sm font-medium text-slate-500">
+            Available Exams
+          </p>
+          <p className="mt-2 text-3xl font-bold text-blue-600">
+            {stats.availableExams}
+          </p>
+        </Card>
+
+        <Card>
+          <p className="text-sm font-medium text-slate-500">
+            Published Results
+          </p>
           <p className="mt-2 text-3xl font-bold text-slate-900">
-            {stats.total}
+            {stats.publishedResults}
           </p>
         </Card>
 
         <Card>
-          <p className="text-sm font-medium text-slate-500">Available Now</p>
+          <p className="text-sm font-medium text-slate-500">
+            Graded Exams
+          </p>
           <p className="mt-2 text-3xl font-bold text-green-600">
-            {stats.available}
+            {stats.gradedResults}
           </p>
         </Card>
 
         <Card>
-          <p className="text-sm font-medium text-slate-500">Not Published</p>
-          <p className="mt-2 text-3xl font-bold text-amber-600">
-            {stats.draft}
+          <p className="text-sm font-medium text-slate-500">
+            Average Score
           </p>
-        </Card>
-
-        <Card>
-          <p className="text-sm font-medium text-slate-500">Closed</p>
-          <p className="mt-2 text-3xl font-bold text-red-600">
-            {stats.closed}
+          <p className="mt-2 text-3xl font-bold text-purple-600">
+            {stats.averageScore}
           </p>
         </Card>
       </div>
 
-      <Card className="mb-6">
-        <div className="grid gap-4 lg:grid-cols-[1fr_220px]">
-          <Input
-            label="Search exams"
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            placeholder="Search by title, description, or lecturer..."
-          />
+      <div className="grid gap-6 xl:grid-cols-2">
+        <Card>
+          <div className="mb-5 flex items-center justify-between gap-3">
+            <div>
+              <h2 className="text-xl font-semibold text-slate-900">
+                Available Exams
+              </h2>
+              <p className="mt-1 text-sm text-slate-500">
+                Exams ready for you to begin
+              </p>
+            </div>
 
-          <div>
-            <label className="mb-1 block text-sm font-medium text-slate-700">
-              Status
-            </label>
-
-            <select
-              value={statusFilter}
-              onChange={(e) => setStatusFilter(e.target.value)}
-              className="w-full rounded-xl border border-slate-300 bg-white px-4 py-2.5 text-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
-            >
-              <option value="ALL">All statuses</option>
-              <option value="PUBLISHED">Available</option>
-              <option value="DRAFT">Not Published</option>
-              <option value="CLOSED">Closed</option>
-            </select>
+            <Link to="/student/exams">
+              <Button variant="ghost">See All</Button>
+            </Link>
           </div>
-        </div>
-      </Card>
 
-      {loading ? (
-        <Card className="flex min-h-[260px] items-center justify-center">
-          <LoadingSpinner />
-        </Card>
-      ) : filteredExams.length ? (
-        <div className="space-y-4">
-          {filteredExams.map((exam) => {
-            const available = isExamAvailable(exam);
+          {upcomingExams.length > 0 ? (
+            <div className="space-y-3">
+              {upcomingExams.map((exam) => (
+                <div
+                  key={exam.id}
+                  className="rounded-2xl border border-slate-200 bg-white p-4"
+                >
+                  <div className="mb-2 flex flex-wrap items-center gap-2">
+                    <Badge variant="success">AVAILABLE</Badge>
 
-            return (
-              <Card key={exam.id}>
-                <div className="flex flex-col gap-5 xl:flex-row xl:items-start xl:justify-between">
-                  <div className="min-w-0 flex-1">
-                    <div className="mb-3 flex flex-wrap items-center gap-2">
-                      <Badge variant={getStatusVariant(exam.status)}>
-                        {exam.status === 'PUBLISHED'
-                          ? 'AVAILABLE'
-                          : exam.status}
-                      </Badge>
+                    <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-600">
+                      {exam.durationMinutes || 0} min
+                    </span>
+                  </div>
 
-                      <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-600">
-                        {exam.durationMinutes || 0} min
-                      </span>
+                  <h3 className="font-semibold text-slate-900">
+                    {exam.title}
+                  </h3>
 
-                      {exam.lecturer?.fullName && (
-                        <span className="rounded-full bg-blue-50 px-3 py-1 text-xs font-medium text-blue-700">
-                          Lecturer: {exam.lecturer.fullName}
-                        </span>
-                      )}
-                    </div>
+                  <p className="mt-1 line-clamp-2 text-sm text-slate-500">
+                    {exam.description || 'No description was provided.'}
+                  </p>
 
-                    <h2 className="text-xl font-semibold text-slate-900">
-                      {exam.title}
-                    </h2>
-
-                    <p className="mt-1 max-w-3xl text-sm text-slate-500">
-                      {exam.description || 'No description was provided.'}
+                  <div className="mt-4 flex items-center justify-between gap-3">
+                    <p className="text-xs text-slate-500">
+                      Ends: {formatDate(exam.endTime)}
                     </p>
 
-                    <div className="mt-4 grid gap-3 text-sm text-slate-600 sm:grid-cols-2 xl:grid-cols-3">
-                      <div className="rounded-xl bg-slate-50 p-3">
-                        <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">
-                          Start Time
-                        </p>
-                        <p className="mt-1">{formatDate(exam.startTime)}</p>
-                      </div>
-
-                      <div className="rounded-xl bg-slate-50 p-3">
-                        <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">
-                          End Time
-                        </p>
-                        <p className="mt-1">{formatDate(exam.endTime)}</p>
-                      </div>
-
-                      <div className="rounded-xl bg-slate-50 p-3">
-                        <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">
-                          Status
-                        </p>
-                        <p className="mt-1">
-                          {available
-                            ? 'Ready to start'
-                            : exam.status === 'CLOSED'
-                              ? 'Exam is closed'
-                              : 'Waiting for lecturer to publish'}
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="flex w-full flex-col gap-2 xl:w-44">
-                    {available ? (
-                      <Link to={`/student/exams/${exam.id}/start`}>
-                        <Button className="w-full">Start Exam</Button>
-                      </Link>
-                    ) : (
-                      <Button className="w-full" variant="ghost" disabled>
-                        Not Available
-                      </Button>
-                    )}
+                    <Link to={`/student/exams/${exam.id}/start`}>
+                      <Button size="sm">Start</Button>
+                    </Link>
                   </div>
                 </div>
-              </Card>
-            );
-          })}
-        </div>
-      ) : (
-        <EmptyState
-          title="No assigned exams"
-          description={
-            exams.length
-              ? 'No exams match your current search or filter.'
-              : 'There are no exams assigned to you right now.'
-          }
-        />
-      )}
+              ))}
+            </div>
+          ) : (
+            <EmptyState
+              title="No available exams"
+              description="There are no exams ready to start right now."
+            />
+          )}
+        </Card>
+
+        <Card>
+          <div className="mb-5 flex items-center justify-between gap-3">
+            <div>
+              <h2 className="text-xl font-semibold text-slate-900">
+                Recent Results
+              </h2>
+              <p className="mt-1 text-sm text-slate-500">
+                Your latest published exam results
+              </p>
+            </div>
+
+            <Link to="/student/results">
+              <Button variant="ghost">See All</Button>
+            </Link>
+          </div>
+
+          {recentResults.length > 0 ? (
+            <div className="space-y-3">
+              {recentResults.map((result) => (
+                <div
+                  key={result.id}
+                  className="rounded-2xl border border-slate-200 bg-white p-4"
+                >
+                  <div className="mb-2 flex flex-wrap items-center gap-2">
+                    <Badge variant={getResultVariant(result.status)}>
+                      {result.status}
+                    </Badge>
+
+                    <span className="rounded-full bg-green-50 px-3 py-1 text-xs font-medium text-green-700">
+                      Score: {result.totalScore ?? 'Pending'}
+                    </span>
+                  </div>
+
+                  <h3 className="font-semibold text-slate-900">
+                    {result.exam?.title || 'Untitled exam'}
+                  </h3>
+
+                  <p className="mt-1 text-sm text-slate-500">
+                    Submitted: {formatDate(result.submittedAt)}
+                  </p>
+
+                  <div className="mt-4 text-right">
+                    <Link to={`/student/results/${result.examId}`}>
+                      <Button size="sm" variant="secondary">
+                        Details
+                      </Button>
+                    </Link>
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <EmptyState
+              title="No published results"
+              description="Your results will appear here after they are published."
+            />
+          )}
+        </Card>
+      </div>
     </>
   );
 };
 
-export default ExamList;
+export default StudentDashboard;
