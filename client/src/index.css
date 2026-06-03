@@ -1,7 +1,13 @@
-/* סגנונות גלובליים לכל האפליקציה */
-:root {
-  /* גובה שורה ברירת מחדל */
-  line-height: 1.5;
-  /* עובי גופן ברירת מחדל */
-  font-weight: 400;
+html, body, #root {
+  height: 100%;
+}
+
+body {
+  font-family: system-ui, -apple-system, 'Segoe UI', 'Heebo', sans-serif;
+  background-color: #f6f7f9;
+}
+
+.nav-link.active {
+  font-weight: 600;
+  color: #fff !important;
 }

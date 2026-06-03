@@ -1,0 +1,61 @@
+==============================================================================
+USE-CASE DIAGRAM (text form)
+==============================================================================
+Actors are on the sides; the "System" box lists the bubbles (use cases).
+Lines show which actors participate in which cases.
+
+  ┌───────────┐                                                        ┌───────────┐
+  │  Guest    │                                                        │ Teacher   │
+  └─────┬─────┘                                                        └─────┬─────┘
+        │                                                                    │
+        │             ┌──────────────────────────────────────────┐           │
+        │ ┌──────────▶│  UC-1   Register a new account           │◀──────────┘
+        │ │           ├──────────────────────────────────────────┤
+        ├─┘     ┌────▶│  UC-2   Log in                           │◀──────┐
+        │       │     ├──────────────────────────────────────────┤       │
+        │       │     │  UC-3   Log out                          │◀──────┤
+        │       │     ├──────────────────────────────────────────┤       │
+        │       │     │  UC-4   Browse home page                 │       │
+        │       │     ├──────────────────────────────────────────┤       │
+        │       │     │  UC-5   View own dashboard               │◀──────┤
+        │       │     ├──────────────────────────────────────────┤       │
+        │       │     │  UC-6   Create a new exam                │◀──────┘ (Teacher only)
+        │       │     ├──────────────────────────────────────────┤
+        │       │     │  UC-7   Edit an exam (title, questions)  │◀──────┐ (Teacher only)
+        │       │     ├──────────────────────────────────────────┤       │
+        │       │     │  UC-8   Publish a draft exam             │       │
+        │       │     ├──────────────────────────────────────────┤       │
+        │       │     │  UC-9   Close a published exam           │       │
+        │       │     ├──────────────────────────────────────────┤       │
+        │       │     │  UC-10  Re-open a closed exam (→draft)   │       │
+        │       │     ├──────────────────────────────────────────┤       │
+        │       │     │  UC-11  Delete an exam                   │───────┘
+        │       │     ├──────────────────────────────────────────┤
+        │       │     │  UC-12  Browse published exams           │◀──────┐
+        │       │     ├──────────────────────────────────────────┤       │
+        │       │     │  UC-13  Take an exam (answer + submit)   │       │ (Student only)
+        │       │     ├──────────────────────────────────────────┤       │
+        │       │     │  UC-14  See my results table             │◀──────┤
+        │       │     ├──────────────────────────────────────────┤       │
+        │       │     │  UC-15  Re-take an exam                  │───────┘
+        │       │     └──────────────────────────────────────────┘
+        │       │                                                            ┌───────────┐
+        │       └────────────────────────────────────────────────────────────│  Student  │
+        └─────────────────────────────── (UC-2, UC-4 only) ──────────────────└───────────┘
+
+------------------------------------------------------------------------------
+PRE/POST CONDITIONS (selected)
+------------------------------------------------------------------------------
+UC-6 Create a new exam
+  Pre:  Teacher is signed in.
+  Post: Exam exists in 'exams' table with status="draft" and createdBy=teacher.id.
+
+UC-8 Publish a draft exam
+  Pre:  Exam.isPublishable() (title not empty and every question isValid()).
+  Post: Exam.status="published" — appears for students in UC-12.
+
+UC-13 Take an exam
+  Pre:  Student is signed in; exam status="published".
+  Post: A Submission row is inserted; score/total are persisted; student is
+        redirected to a pass/fail card and the entry appears in UC-14.
+==============================================================================

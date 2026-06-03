@@ -1,0 +1,71 @@
+==============================================================================
+MAIN ENTITIES — MockDb tables and shape
+==============================================================================
+The mock DB is a single object persisted in localStorage under the key
+"examapp::mockdb". It contains three tables; each row is the JSON form
+of the matching model class.
+
+------------------------------------------------------------------------------
+USERS (table: "users")
+------------------------------------------------------------------------------
+{
+  id:       string,    // generated, e.g. "user_<ts>_<rand>"
+  name:     string,
+  email:    string,    // lowercased + trimmed, unique
+  password: string,    // plaintext mock — never sent off the device
+  role:     "teacher" | "student"
+}
+Seed: 2 demo users (teacher@demo.test, student@demo.test).
+
+------------------------------------------------------------------------------
+EXAMS (table: "exams")
+------------------------------------------------------------------------------
+{
+  id:          string,
+  title:       string,
+  description: string,
+  status:      "draft" | "published" | "closed",
+  questions:   Question[],
+  createdBy:   string,    // user.id of the owning teacher
+  createdAt:   number     // epoch ms
+}
+
+Question (embedded):
+{
+  id:            string,
+  text:          string,
+  options:       string[],     // 2..6
+  correctAnswer: number        // index into options
+}
+
+Seed: 2 demo exams — one PUBLISHED (JavaScript), one DRAFT (React).
+
+------------------------------------------------------------------------------
+SUBMISSIONS (table: "submissions")
+------------------------------------------------------------------------------
+{
+  id:          string,
+  examId:      string,    // → exams.id
+  studentId:   string,    // → users.id
+  answers:     number[],  // index per question, same order as exam
+  score:       number,    // count of correct answers
+  total:       number,    // number of questions
+  submittedAt: number     // epoch ms
+}
+Seed: none.
+
+------------------------------------------------------------------------------
+RELATIONSHIPS
+------------------------------------------------------------------------------
+Users (teacher)     1 ──< many Exams           (Exam.createdBy → User.id)
+Users (student)     1 ──< many Submissions     (Submission.studentId → User.id)
+Exams               1 ──< many Submissions     (Submission.examId → Exam.id)
+Exams               1 ──< many Questions       (embedded array)
+
+------------------------------------------------------------------------------
+KEY STORAGE NAMESPACE
+------------------------------------------------------------------------------
+examapp::mockdb         → the three tables above
+examapp::current_user   → the public profile of the logged-in user
+                           (name/email/role/id only — no password)
+==============================================================================

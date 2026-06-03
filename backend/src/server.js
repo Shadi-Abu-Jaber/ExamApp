@@ -1,15 +1,13 @@
-require('dotenv').config();
-const app = require('./app');
-const prisma = require('./config/prisma');
+// נקודת ההפעלה של השרת.
+// קוראים ל-createApp כדי לאסוף את כל הראוטים והמידלוורים, ואז מאזינים לפורט.
+// משתמשים ב-PORT מסביבת הריצה כדי שיהיה קל לשנות בלי לערוך קוד.
 
-const PORT = process.env.PORT || 5000;
+import { createApp } from './app.js';
+import { logger } from './logger.js';
 
-const server = app.listen(PORT, () => {
-  console.log(`ExamFlow backend listening on port ${PORT}`);
-});
+const port = Number(process.env.PORT) || 4000;
+const app = createApp();
 
-process.on('SIGINT', async () => {
-  console.log('Shutting down server...');
-  await prisma.$disconnect();
-  server.close(() => process.exit(0));
+app.listen(port, () => {
+  logger.info(`examapp-server listening on http://localhost:${port}`);
 });

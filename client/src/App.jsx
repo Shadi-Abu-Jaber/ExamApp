@@ -1,75 +1,68 @@
-import React, { useState } from 'react';
-import TeacherDashboard from './TeacherDashboard';
-import StudentPortal from './StudentPortal';
-import LoginPage from './LoginPage';
-import './App.css';
+// קומפוננטת השורש של האפליקציה.
+// אחראית על: הספקת השירותים לעץ הרכיבים, הצגת תפריט הניווט והוטסטים,
+// וניתוב בין העמודים השונים. מצב המשתמש מנוהל ב-AuthContext.
 
-function getStoredUser() {
-  try {
-    const raw = localStorage.getItem('exam_user');
-    return raw ? JSON.parse(raw) : null;
-  } catch {
-    return null;
-  }
-}
+import React from 'react';
+import { Routes, Route, Navigate } from 'react-router-dom';
+import NavigationMenu from './components/NavigationMenu.jsx';
+import ToastViewport from './components/ToastViewport.jsx';
+import ProtectedRoute from './components/ProtectedRoute.jsx';
+import HomePage from './pages/HomePage.jsx';
+import LoginPage from './pages/auth/LoginPage.jsx';
+import RegisterPage from './pages/auth/RegisterPage.jsx';
+import TeacherRoutes from './pages/teacher/TeacherRoutes.jsx';
+import StudentRoutes from './pages/student/StudentRoutes.jsx';
+import { ServicesProvider } from './context/ServicesContext.jsx';
+import { AuthProvider, useAuth } from './context/AuthContext.jsx';
 
-function App() {
-  const [user, setUser] = useState(getStoredUser);
-
-  const handleLogin = (userData) => {
-    localStorage.setItem('exam_user', JSON.stringify(userData));
-    setUser(userData);
-  };
-
-  const handleLogout = () => {
-    localStorage.removeItem('exam_user');
-    setUser(null);
-  };
-
-  if (!user) {
-    return <LoginPage onLogin={handleLogin} />;
-  }
+function AppShell() {
+  const { user, logout } = useAuth();
 
   return (
-    <div className="min-vh-100 bg-light" dir="rtl">
-      <nav className="navbar navbar-expand-lg navbar-dark bg-dark mb-4">
-        <div className="container">
-          <span className="navbar-brand">מערכת בחינות אלקטרונית</span>
-          <div className="d-flex align-items-center gap-3">
-            <span className="text-white-50 small">
-              {user.name} ({user.role === 'teacher' ? 'מורה' : 'תלמיד'})
-            </span>
-            <button className="btn btn-outline-danger btn-sm" onClick={handleLogout}>
-              יציאה
-            </button>
-          </div>
-        </div>
-      </nav>
+    <div className="min-vh-100 bg-light d-flex flex-column" dir="rtl">
+      <NavigationMenu user={user} onLogout={logout} />
+      <ToastViewport />
 
-      <main>
-        {user.welcomeMessage && (
-          <div className="container mb-4">
-            <div className="alert alert-success d-flex align-items-center gap-2">
-              <span>✨</span>
-              <span>{user.welcomeMessage}</span>
-            </div>
-          </div>
-        )}
+      <main className="flex-grow-1">
+        <Routes>
+          <Route path="/" element={<HomePage user={user} />} />
+          <Route path="/login" element={<LoginPage />} />
+          <Route path="/register" element={<RegisterPage />} />
 
-        {user.role === 'teacher' ? (
-          <TeacherDashboard />
-        ) : (
-          <StudentPortal />
-        )}
+          <Route
+            path="/teacher/*"
+            element={
+              <ProtectedRoute role="teacher">
+                <TeacherRoutes />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/student/*"
+            element={
+              <ProtectedRoute role="student">
+                <StudentRoutes />
+              </ProtectedRoute>
+            }
+          />
+
+          <Route path="*" element={<Navigate to="/" replace />} />
+        </Routes>
       </main>
 
-      <footer className="mt-5 py-4 bg-white border-top text-center text-muted">
-        <div className="container">
-          <p>&copy; 2026 הדגמת מערכת בחינות אלקטרונית Mock API</p>
-        </div>
+      <footer className="py-3 bg-white border-top text-center text-muted small">
+        &copy; 2026 מערכת בחינות אלקטרונית
       </footer>
     </div>
   );
 }
 
-export default App;
+export default function App() {
+  return (
+    <ServicesProvider>
+      <AuthProvider>
+        <AppShell />
+      </AuthProvider>
+    </ServicesProvider>
+  );
+}

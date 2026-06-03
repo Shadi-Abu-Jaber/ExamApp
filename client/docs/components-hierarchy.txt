@@ -1,0 +1,49 @@
+==============================================================================
+COMPONENTS HIERARCHY — Exam App client
+==============================================================================
+Read top-down. "*" marks routed pages. Indentation = composition.
+
+main.jsx
+└── <StrictMode>
+    └── <HashRouter>
+        └── <App>
+            └── <ServicesProvider>          (provides Logger/Config/Storage/
+                │                            Notify/MockDb/ExamService/
+                │                            SubmissionService/AuthService)
+                └── <AuthProvider>           (provides current user + login/
+                    │                          register/logout actions)
+                    └── <AppShell>
+                        ├── <NavigationMenu>  (role-aware top navbar)
+                        ├── <ToastViewport>   (renders Notify pub/sub stream)
+                        └── <main><Routes>
+                            ├── *  /                    <HomePage>
+                            ├── *  /login               <LoginPage>
+                            ├── *  /register            <RegisterPage>
+                            │
+                            ├── *  /teacher/* (Protected, role=teacher)
+                            │      └── <TeacherRoutes>
+                            │          ├── index            <TeacherDashboard>
+                            │          ├── /exams           <MyExamsPage>
+                            │          │                     └── <ExamStatusBadge>
+                            │          ├── /exams/new       <ExamBuilderPage>
+                            │          │                     └── <ExamForm>
+                            │          │                         └── <QuestionEditor>
+                            │          └── /exams/:id/edit  <ExamEditorPage>
+                            │                                ├── <ExamStatusBadge>
+                            │                                └── <ExamForm>
+                            │                                    └── <QuestionEditor>
+                            │
+                            └── *  /student/* (Protected, role=student)
+                                   └── <StudentRoutes>
+                                       ├── index            <StudentDashboard>
+                                       ├── /exams           <AvailableExamsPage>
+                                       ├── /exams/:id/take  <ExamTakerPage>
+                                       └── /results         <ResultsPage>
+
+CROSS-CUTTING HOOKS
+------------------------------------------------------------------------------
+useServices()      — reach the OOP service graph from any component.
+useNotifyToasts()  — derive toast state from Notify pub/sub.
+useAuth()          — current user + login/register/logout actions.
+useLocation/useNavigate/useParams — react-router primitives.
+==============================================================================

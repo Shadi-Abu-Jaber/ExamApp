@@ -1,5 +1,10 @@
-/* איפוס מינימלי או תוספות מותאמות אישית במידת הצורך */
-body {
-  /* הגדרת גופן ברירת מחדל לאפליקציה */
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+.exam-card-question {
+  background-color: #fff;
+  border: 1px solid #e9ecef;
+  border-radius: 0.5rem;
+  padding: 1rem;
 }
+
+.exam-status-badge-draft     { background-color: #6c757d; }
+.exam-status-badge-published { background-color: #198754; }
+.exam-status-badge-closed    { background-color: #dc3545; }
