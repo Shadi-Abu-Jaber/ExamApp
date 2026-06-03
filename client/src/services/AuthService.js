@@ -1,14 +1,18 @@
-// שירות אימות (AuthService) — מרכז את כל הלוגיקה של כניסה והרשמה.
-// עובד מול ה-MockDb (טבלת users) ושומר את המשתמש המחובר ב-Storage,
-// כך שהמצב נשמר בין רענונים. הסיסמה אינה נשמרת בפרופיל הציבורי.
+// Auth service — login / register / logout / current-user.
+// Data validation and the user store live behind the ApiGateway. AuthService
+// only orchestrates: invoke the gateway, persist the public profile via
+// Storage, and surface success/failure toasts via Notify.
 
-import { User, USER_ROLE } from '../models/User.js';
+// שירות אימות (גרסת P3).
+// כל הוולידציה ובדיקת הסיסמה עברו אל ApiGateway — כך אותו קוד
+// שירות תקף גם במצב mock וגם כשהשרת אמיתי מגיב.
+// השירות עצמו רק שומר את הפרופיל ב-Storage ומציג toast הצלחה.
 
 const CURRENT_USER_KEY = 'current_user';
 
 export class AuthService {
-  constructor({ db, storage, notify, logger }) {
-    this.db = db;
+  constructor({ gateway, storage, notify, logger }) {
+    this.gateway = gateway;
     this.storage = storage;
     this.notify = notify;
     this.logger = logger?.child('auth');
@@ -19,34 +23,20 @@ export class AuthService {
   }
 
   async login(email, password) {
-    const normalized = (email || '').toLowerCase().trim();
-    const found = this.db.findOne('users', u => u.email === normalized && u.password === password);
-    if (!found) {
-      this.logger?.warn('login failed', normalized);
-      throw new Error('אימייל או סיסמה שגויים');
+    try {
+      const profile = await this.gateway.login(email, password);
+      this.storage.set(CURRENT_USER_KEY, profile);
+      this.logger?.info('login ok', profile.email, profile.role);
+      this.notify?.success(`ברוך הבא, ${profile.name}`);
+      return profile;
+    } catch (err) {
+      this.logger?.warn('login failed', err?.message);
+      throw err;
     }
-    const profile = new User(found).publicProfile();
-    this.storage.set(CURRENT_USER_KEY, profile);
-    this.logger?.info('login ok', profile.email, profile.role);
-    this.notify?.success(`ברוך הבא, ${profile.name}`);
-    return profile;
   }
 
-  // יוצר משתמש חדש לאחר ולידציה ושומר אותו במסד המדומה.
-  // אם האימייל כבר תפוס — נזרקת שגיאה ברורה לעברית.
-  async register({ name, email, password, role }) {
-    const normalized = (email || '').toLowerCase().trim();
-    if (!name?.trim()) throw new Error('יש להזין שם');
-    if (!normalized) throw new Error('יש להזין אימייל');
-    if (!password || password.length < 6) throw new Error('סיסמה חייבת להכיל לפחות 6 תווים');
-    if (!Object.values(USER_ROLE).includes(role)) throw new Error('יש לבחור תפקיד');
-
-    const exists = this.db.findOne('users', u => u.email === normalized);
-    if (exists) throw new Error('אימייל כבר קיים במערכת');
-
-    const user = new User({ name: name.trim(), email: normalized, password, role });
-    this.db.insert('users', user);
-    const profile = user.publicProfile();
+  async register(payload) {
+    const profile = await this.gateway.register(payload);
     this.storage.set(CURRENT_USER_KEY, profile);
     this.logger?.info('register ok', profile.email, profile.role);
     this.notify?.success(`חשבון נוצר בהצלחה. ברוך הבא, ${profile.name}`);

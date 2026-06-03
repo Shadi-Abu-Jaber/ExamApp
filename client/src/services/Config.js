@@ -4,12 +4,16 @@
 
 const DEFAULTS = Object.freeze({
   appName: 'מערכת בחינות אלקטרונית',
-  appVersion: '0.2.0',
+  appVersion: '0.3.0',
   storagePrefix: 'examapp',
   logLevel: 'info',
   mockLatencyMs: 350,
   defaultPageSize: 10,
   passingGrade: 60,
+  // 'mock' = work fully against the in-memory MockDb (no server needed).
+  // 'http' = call the Express server (see serverBaseUrl).
+  dataMode: 'mock',
+  serverBaseUrl: 'http://localhost:4000',
 });
 
 export class Config {
