@@ -119,6 +119,20 @@ All MockDb writes are flushed through Storage to localStorage under the
 call db.reset() from the console).
 
 ==============================================================================
-This document grows with the project. Each module (M2..M5) adds its own
-sections describing the new pages and use cases it introduces.
+DIAGRAMS (M5)
+------------------------------------------------------------------------------
+See client/docs/ for plain-text diagrams that mirror this explanation:
+
+  client/docs/components-hierarchy.txt   React component tree (top-down).
+  client/docs/uml.txt                    Class diagram for all non-component
+                                         code (services, api, models) +
+                                         key relationships.
+  client/docs/entities.txt               MockDb table shapes and storage
+                                         keys.
+  client/docs/usecase.txt                Use-case diagram per actor
+                                         (Guest / Teacher / Student) with
+                                         pre/post conditions.
+
+==============================================================================
+This document is updated by each module. Modules shipped: M1, M2, M3, M4, M5.
 ==============================================================================
