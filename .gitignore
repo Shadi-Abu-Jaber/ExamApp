@@ -26,5 +26,11 @@ backend/.env
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
-.vscode/
 .DS_Store
+
+# VS Code — ignore personal settings, but keep shared workspace config
+.vscode/*
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/README.txt
+!.vscode/extensions.json

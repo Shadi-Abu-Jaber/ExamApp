@@ -1,0 +1,44 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Debug Server (Node)",
+      "type": "node",
+      "request": "launch",
+      "program": "${workspaceFolder}/backend/src/server.js",
+      "cwd": "${workspaceFolder}/backend",
+      "console": "integratedTerminal",
+      "skipFiles": ["<node_internals>/**"],
+      "env": {
+        "PORT": "4000",
+        "CORS_ORIGIN": "http://localhost:5173",
+        "LOG_LEVEL": "debug"
+      }
+    },
+    {
+      "name": "Debug Client (Chrome)",
+      "type": "chrome",
+      "request": "launch",
+      "url": "http://localhost:5173",
+      "webRoot": "${workspaceFolder}/client",
+      "preLaunchTask": "client: dev",
+      "sourceMaps": true,
+      "sourceMapPathOverrides": {
+        "webpack:///./src/*": "${webRoot}/src/*",
+        "/src/*": "${webRoot}/src/*"
+      }
+    }
+  ],
+  "compounds": [
+    {
+      "name": "Debug Both (Server + Client)",
+      "configurations": ["Debug Server (Node)", "Debug Client (Chrome)"],
+      "stopAll": true,
+      "presentation": {
+        "hidden": false,
+        "group": "examapp",
+        "order": 1
+      }
+    }
+  ]
+}
