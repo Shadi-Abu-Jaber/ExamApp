@@ -29,11 +29,15 @@ PAGES (current + planned)
 
 [planned per module]
 
-M3 (Teacher):
-* /teacher          Teacher dashboard (counts + quick links).
-* /teacher/exams    List of own exams with status badges.
-* /teacher/exams/new        Exam builder (title + questions).
-* /teacher/exams/:id/edit   Exam editor + publish/close/back-to-draft.
+[done in M3]
+* /teacher                 Teacher dashboard — counts of total / drafts
+                           / published / closed + quick links.
+* /teacher/exams           List of own exams with status badges and
+                           per-row publish / close / back-to-draft / delete.
+* /teacher/exams/new       ExamForm (title, description, questions) →
+                           creates a DRAFT exam.
+* /teacher/exams/:id/edit  Same form preloaded with the exam; status
+                           change buttons at the page header.
 
 M4 (Student):
 * /student          Student dashboard.
