@@ -1,75 +1,53 @@
+// קומפוננטת השורש של האפליקציה.
+// אחראית על: הספקת השירותים לעץ הרכיבים, הצגת תפריט הניווט והוטסטים,
+// וניתוב בין העמודים השונים. מצב המשתמש נשמר ב-Storage כדי להישמר
+// בין רענונים.
+
 import React, { useState } from 'react';
-import TeacherDashboard from './TeacherDashboard';
-import StudentPortal from './StudentPortal';
-import LoginPage from './LoginPage';
-import './App.css';
+import { Routes, Route, Navigate } from 'react-router-dom';
+import NavigationMenu from './components/NavigationMenu.jsx';
+import ToastViewport from './components/ToastViewport.jsx';
+import HomePage from './pages/HomePage.jsx';
+import PlaceholderPage from './pages/PlaceholderPage.jsx';
+import { ServicesProvider, useServices } from './context/ServicesContext.jsx';
 
-function getStoredUser() {
-  try {
-    const raw = localStorage.getItem('exam_user');
-    return raw ? JSON.parse(raw) : null;
-  } catch {
-    return null;
-  }
-}
-
-function App() {
-  const [user, setUser] = useState(getStoredUser);
-
-  const handleLogin = (userData) => {
-    localStorage.setItem('exam_user', JSON.stringify(userData));
-    setUser(userData);
-  };
+function AppShell() {
+  const { storage, notify } = useServices();
+  const [user, setUser] = useState(() => storage.get('current_user'));
 
   const handleLogout = () => {
-    localStorage.removeItem('exam_user');
+    storage.remove('current_user');
     setUser(null);
+    notify.info('יצאת מהמערכת');
   };
 
-  if (!user) {
-    return <LoginPage onLogin={handleLogin} />;
-  }
-
   return (
-    <div className="min-vh-100 bg-light" dir="rtl">
-      <nav className="navbar navbar-expand-lg navbar-dark bg-dark mb-4">
-        <div className="container">
-          <span className="navbar-brand">מערכת בחינות אלקטרונית</span>
-          <div className="d-flex align-items-center gap-3">
-            <span className="text-white-50 small">
-              {user.name} ({user.role === 'teacher' ? 'מורה' : 'תלמיד'})
-            </span>
-            <button className="btn btn-outline-danger btn-sm" onClick={handleLogout}>
-              יציאה
-            </button>
-          </div>
-        </div>
-      </nav>
+    <div className="min-vh-100 bg-light d-flex flex-column" dir="rtl">
+      <NavigationMenu user={user} onLogout={handleLogout} />
+      <ToastViewport />
 
-      <main>
-        {user.welcomeMessage && (
-          <div className="container mb-4">
-            <div className="alert alert-success d-flex align-items-center gap-2">
-              <span>✨</span>
-              <span>{user.welcomeMessage}</span>
-            </div>
-          </div>
-        )}
-
-        {user.role === 'teacher' ? (
-          <TeacherDashboard />
-        ) : (
-          <StudentPortal />
-        )}
+      <main className="flex-grow-1">
+        <Routes>
+          <Route path="/" element={<HomePage user={user} />} />
+          <Route path="/login" element={<PlaceholderPage title="כניסה" note="יוטמע במודול האימות." />} />
+          <Route path="/register" element={<PlaceholderPage title="הרשמה" note="יוטמע במודול האימות." />} />
+          <Route path="/teacher/*" element={<PlaceholderPage title="אזור מורה" note="יוטמע במודול המורים." />} />
+          <Route path="/student/*" element={<PlaceholderPage title="אזור תלמיד" note="יוטמע במודול התלמידים." />} />
+          <Route path="*" element={<Navigate to="/" replace />} />
+        </Routes>
       </main>
 
-      <footer className="mt-5 py-4 bg-white border-top text-center text-muted">
-        <div className="container">
-          <p>&copy; 2026 הדגמת מערכת בחינות אלקטרונית Mock API</p>
-        </div>
+      <footer className="py-3 bg-white border-top text-center text-muted small">
+        &copy; 2026 מערכת בחינות אלקטרונית
       </footer>
     </div>
   );
 }
 
-export default App;
+export default function App() {
+  return (
+    <ServicesProvider>
+      <AppShell />
+    </ServicesProvider>
+  );
+}

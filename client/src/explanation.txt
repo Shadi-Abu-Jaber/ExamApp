@@ -1,0 +1,109 @@
+==============================================================================
+EXAM APP — CLIENT EXPLANATION (M1: scaffolding + services)
+==============================================================================
+
+OVERVIEW
+------------------------------------------------------------------------------
+A React-only single-page application that simulates an exam management
+platform. There is no real backend in this phase — all state lives in browser
+localStorage via a mock database service. The architecture is intentionally
+modular: React components handle UI only, while business logic, persistence,
+configuration, logging, and notifications live in OOP service classes.
+
+USERS
+------------------------------------------------------------------------------
+* Teacher  — owns exams, creates questions, controls publishing.
+* Student  — browses published exams, takes them, sees own results.
+* Guest    — sees the home page; must log in or register to do anything else.
+
+PAGES (current + planned)
+------------------------------------------------------------------------------
+[done in M1]
+* /                 Home / role-aware landing page.
+* /login            Placeholder — wired up in M2 (Auth).
+* /register         Placeholder — wired up in M2 (Auth).
+* /teacher/*        Placeholder — wired up in M3 (Teacher).
+* /student/*        Placeholder — wired up in M4 (Student).
+
+[planned per module]
+M2 (Auth):
+* /login            Email + password sign-in.
+* /register         Create teacher or student account.
+
+M3 (Teacher):
+* /teacher          Teacher dashboard (counts + quick links).
+* /teacher/exams    List of own exams with status badges.
+* /teacher/exams/new        Exam builder (title + questions).
+* /teacher/exams/:id/edit   Exam editor + publish/close/back-to-draft.
+
+M4 (Student):
+* /student          Student dashboard.
+* /student/exams    Published exams browser.
+* /student/exams/:id/take   Exam taker (answer + submit).
+* /student/results  Past submissions and percentages.
+
+USE CASES
+------------------------------------------------------------------------------
+UC-1  Teacher signs in and creates a new exam with N questions.
+UC-2  Teacher edits an existing exam (add / remove / reorder questions).
+UC-3  Teacher publishes a draft exam, making it visible to students.
+UC-4  Teacher closes a published exam to stop new submissions.
+UC-5  Student signs up and signs in.
+UC-6  Student browses published exams and starts one.
+UC-7  Student answers the exam and submits — score is computed immediately.
+UC-8  Student views own submissions and percentages.
+
+ARCHITECTURE — SERVICES (OOP, non-component)
+------------------------------------------------------------------------------
+src/services/
+  Logger.js            Level-aware logger with prefix and child() support.
+  Config.js            App-wide configuration values (app name, latency, etc.).
+  Storage.js           Namespaced wrapper around localStorage with in-memory
+                       fallback when storage is unavailable.
+  Notify.js            Pub/sub for toast notifications consumed by the UI.
+  ServiceRegistry.js   Bootstraps the singleton service graph and exposes it.
+
+src/api/
+  mockDb.js            MockDb class — in-memory tables (users, exams,
+                       submissions) persisted via Storage; seeds demo data on
+                       first load.
+  examService.js       ExamService + SubmissionService classes. Wrap MockDb
+                       with simulated network latency and domain rules
+                       (publish, status changes, score computation).
+
+src/models/
+  User.js Exam.js Question.js Submission.js
+                       Plain ES6 classes representing the core entities.
+                       isValid() / isPublishable() encapsulate domain rules.
+
+src/context/
+  ServicesContext.jsx  React context that exposes the bootstrapped services
+                       to components via useServices() and supplies toast
+                       state via useNotifyToasts().
+
+src/components/
+  NavigationMenu.jsx   Top navbar, role-aware links + login/logout actions.
+  ToastViewport.jsx    Renders the toasts emitted by Notify.
+
+ROUTING
+------------------------------------------------------------------------------
+HashRouter is used so the app also works when deployed to gh-pages without
+server-side rewrite rules. Routes:
+
+  /              HomePage
+  /login         placeholder (M2)
+  /register      placeholder (M2)
+  /teacher/*    placeholder (M3)
+  /student/*    placeholder (M4)
+  *              redirects to /
+
+PERSISTENCE
+------------------------------------------------------------------------------
+All MockDb writes are flushed through Storage to localStorage under the
+"examapp::mockdb" key. To reset to the seeded demo data, clear that key (or
+call db.reset() from the console).
+
+==============================================================================
+This document grows with the project. Each module (M2..M5) adds its own
+sections describing the new pages and use cases it introduces.
+==============================================================================
