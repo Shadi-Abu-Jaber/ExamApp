@@ -1,15 +1,9 @@
-require('dotenv').config();
-const app = require('./app');
-const prisma = require('./config/prisma');
+import { createApp } from './app.js';
+import { logger } from './logger.js';
 
-const PORT = process.env.PORT || 5000;
+const port = Number(process.env.PORT) || 4000;
+const app = createApp();
 
-const server = app.listen(PORT, () => {
-  console.log(`ExamFlow backend listening on port ${PORT}`);
-});
-
-process.on('SIGINT', async () => {
-  console.log('Shutting down server...');
-  await prisma.$disconnect();
-  server.close(() => process.exit(0));
+app.listen(port, () => {
+  logger.info(`examapp-server listening on http://localhost:${port}`);
 });
