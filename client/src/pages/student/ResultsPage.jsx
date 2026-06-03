@@ -1,3 +1,7 @@
+// טבלת התוצאות של התלמיד.
+// טוענת את ההגשות, ולכל הגשה מבקשת את שם הבחינה (במקביל) כדי להציג
+// טבלה אחת קריאה. ממוינת מהחדש לישן.
+
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useServices } from '../../context/ServicesContext.jsx';

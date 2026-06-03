@@ -1,3 +1,6 @@
+// דשבורד התלמיד — מציג מספר בחינות זמינות, מספר הגשות וממוצע ציונים.
+// הממוצע מחושב בלקוח על בסיס ההגשות של המשתמש המחובר.
+
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useServices } from '../../context/ServicesContext.jsx';

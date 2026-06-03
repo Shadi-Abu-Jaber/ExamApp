@@ -1,3 +1,8 @@
+// עמוד מילוי הבחינה.
+// מציג שאלה אחר שאלה עם רדיו לאפשרויות וסרגל התקדמות.
+// כפתור ההגשה נחסם עד שכל השאלות נענו. הציון מחושב בשירות (לא בלקוח)
+// ומוצג מיד עם תווית עבר/נכשל לפי ציון המעבר מ-Config.
+
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useParams, Link } from 'react-router-dom';
 import { useServices } from '../../context/ServicesContext.jsx';
