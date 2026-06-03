@@ -134,5 +134,29 @@ See client/docs/ for plain-text diagrams that mirror this explanation:
                                          pre/post conditions.
 
 ==============================================================================
-This document is updated by each module. Modules shipped: M1, M2, M3, M4, M5.
+PROJECT TASK 3 — CLIENT/SERVER SPLIT
+------------------------------------------------------------------------------
+[done in P3-M1] — see backend/ for the simple Express + memory-JSON server.
+
+[done in P3-M2]
+A single new class — src/api/ApiGateway.js — handles every data call
+the client makes. The rest of the code does not know whether the data
+comes from the in-memory MockDb or from the Express server.
+
+Configuration (src/services/Config.js):
+* dataMode         'mock' (default) or 'http'.
+* serverBaseUrl    Default http://localhost:4000.
+
+How to choose the mode:
+1. Build-time:  client/.env  →  VITE_DATA_MODE=http
+2. Runtime:     in browser DevTools console:
+                   localStorage.setItem('examapp::dataMode', 'http')
+                Then refresh.
+
+Services (ExamService / SubmissionService / AuthService) are now thin
+orchestrators on top of ApiGateway. React components, pages, models,
+contexts — none of them changed.
+
+==============================================================================
+This document is updated by each module. Shipped: M1..M5, P3-M1, P3-M2.
 ==============================================================================

@@ -15,6 +15,8 @@ import { AuthService } from './AuthService.js';
 
 let instance = null;
 
+// קורא משתני סביבה של Vite (VITE_DATA_MODE, VITE_SERVER_BASE_URL)
+// כדי לאפשר שינוי מצב מבלי לערוך קוד — דרך client/.env.
 function readEnvOverrides() {
   // Vite injects values prefixed with VITE_ at build time / dev start.
   const env = (typeof import.meta !== 'undefined' && import.meta.env) || {};
@@ -24,6 +26,8 @@ function readEnvOverrides() {
   return overrides;
 }
 
+// מאפשר למפתחים להחליף מצב mock/http בזמן ריצה דרך DevTools, בלי build:
+//   localStorage.setItem('examapp::dataMode', 'http')
 function readLocalStorageOverride(prefix) {
   // Lets a developer flip modes at runtime from DevTools, e.g.:
   //   localStorage.setItem('examapp::dataMode', 'http')

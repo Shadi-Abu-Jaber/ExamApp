@@ -3,6 +3,11 @@
 // only orchestrates: invoke the gateway, persist the public profile via
 // Storage, and surface success/failure toasts via Notify.
 
+// שירות אימות (גרסת P3).
+// כל הוולידציה ובדיקת הסיסמה עברו אל ApiGateway — כך אותו קוד
+// שירות תקף גם במצב mock וגם כשהשרת אמיתי מגיב.
+// השירות עצמו רק שומר את הפרופיל ב-Storage ומציג toast הצלחה.
+
 const CURRENT_USER_KEY = 'current_user';
 
 export class AuthService {

@@ -5,6 +5,13 @@
 // React components do not import this class — they keep using
 // ExamService / SubmissionService / AuthService, which now delegate here.
 
+// שער ה-API היחיד של הלקוח.
+// כל פעולה (התחברות, הרשמה, בחינות, הגשות) עוברת דרך המחלקה הזו.
+// בפנים, המחלקה בודקת את Config.dataMode ומחליטה אם לדבר עם השרת
+// (http) או להישאר עם המסד המקומי בזיכרון (mock). הרכיבים והשירותים
+// אינם רואים את ההבדל — אותה תשובה חוזרת מאותה חתימה.
+
+// כלי עזר קטן: ממתין X מילישניות כדי לדמות השהיית רשת במצב mock.
 function delay(ms) { return new Promise(r => setTimeout(r, ms)); }
 
 export class ApiGateway {
@@ -17,6 +24,8 @@ export class ApiGateway {
   get mode() { return this.config.get('dataMode'); }
   get baseUrl() { return this.config.get('serverBaseUrl'); }
 
+  // מתודה פנימית — עוטפת fetch עם base URL, סדרת JSON, וטיפול בשגיאות.
+  // מכאן יוצאת כל קריאה לשרת — כך לוגיקת הרשת מרוכזת במקום אחד.
   async _http(path, { method = 'GET', body, query } = {}) {
     const qs = query
       ? '?' + Object.entries(query)
