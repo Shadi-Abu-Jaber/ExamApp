@@ -8,10 +8,10 @@ import NavigationMenu from './components/NavigationMenu.jsx';
 import ToastViewport from './components/ToastViewport.jsx';
 import ProtectedRoute from './components/ProtectedRoute.jsx';
 import HomePage from './pages/HomePage.jsx';
-import PlaceholderPage from './pages/PlaceholderPage.jsx';
 import LoginPage from './pages/auth/LoginPage.jsx';
 import RegisterPage from './pages/auth/RegisterPage.jsx';
 import TeacherRoutes from './pages/teacher/TeacherRoutes.jsx';
+import StudentRoutes from './pages/student/StudentRoutes.jsx';
 import { ServicesProvider } from './context/ServicesContext.jsx';
 import { AuthProvider, useAuth } from './context/AuthContext.jsx';
 
@@ -41,7 +41,7 @@ function AppShell() {
             path="/student/*"
             element={
               <ProtectedRoute role="student">
-                <PlaceholderPage title="אזור תלמיד" note="יוטמע במודול התלמידים (M4)." />
+                <StudentRoutes />
               </ProtectedRoute>
             }
           />
