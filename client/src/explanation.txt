@@ -39,11 +39,16 @@ PAGES (current + planned)
 * /teacher/exams/:id/edit  Same form preloaded with the exam; status
                            change buttons at the page header.
 
-M4 (Student):
-* /student          Student dashboard.
-* /student/exams    Published exams browser.
-* /student/exams/:id/take   Exam taker (answer + submit).
-* /student/results  Past submissions and percentages.
+[done in M4]
+* /student                 Student dashboard — counts (available exams,
+                           submissions) + average grade.
+* /student/exams           Browse published exams with "already taken"
+                           badge; one-click "התחל בחינה".
+* /student/exams/:id/take  Exam taker — progress bar, radio-per-question,
+                           submit disabled until all answered. On submit
+                           shows the score immediately (passed/failed).
+* /student/results         Table of past submissions with title, raw
+                           score, percentage, pass/fail badge, and date.
 
 USE CASES
 ------------------------------------------------------------------------------
