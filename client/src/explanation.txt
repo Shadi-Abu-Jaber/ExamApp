@@ -20,15 +20,14 @@ PAGES (current + planned)
 ------------------------------------------------------------------------------
 [done in M1]
 * /                 Home / role-aware landing page.
-* /login            Placeholder — wired up in M2 (Auth).
-* /register         Placeholder — wired up in M2 (Auth).
-* /teacher/*        Placeholder — wired up in M3 (Teacher).
-* /student/*        Placeholder — wired up in M4 (Student).
+
+[done in M2]
+* /login            Email + password sign-in (with demo credentials hint).
+* /register         Create teacher or student account.
+* /teacher/* and /student/* are now wrapped in ProtectedRoute and
+  require a matching role; otherwise the user is redirected to /login.
 
 [planned per module]
-M2 (Auth):
-* /login            Email + password sign-in.
-* /register         Create teacher or student account.
 
 M3 (Teacher):
 * /teacher          Teacher dashboard (counts + quick links).
@@ -61,6 +60,9 @@ src/services/
   Storage.js           Namespaced wrapper around localStorage with in-memory
                        fallback when storage is unavailable.
   Notify.js            Pub/sub for toast notifications consumed by the UI.
+  AuthService.js       (M2) Login/register/logout. Validates credentials
+                       against MockDb and stores the public profile of the
+                       currently-logged-in user via Storage.
   ServiceRegistry.js   Bootstraps the singleton service graph and exposes it.
 
 src/api/
@@ -80,10 +82,14 @@ src/context/
   ServicesContext.jsx  React context that exposes the bootstrapped services
                        to components via useServices() and supplies toast
                        state via useNotifyToasts().
+  AuthContext.jsx      (M2) Holds the currently-logged-in user as React
+                       state and exposes login/register/logout actions.
 
 src/components/
   NavigationMenu.jsx   Top navbar, role-aware links + login/logout actions.
   ToastViewport.jsx    Renders the toasts emitted by Notify.
+  ProtectedRoute.jsx   (M2) Redirects to /login if the user is missing or
+                       to / if their role does not match the route.
 
 ROUTING
 ------------------------------------------------------------------------------

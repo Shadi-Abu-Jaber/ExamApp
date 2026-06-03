@@ -4,6 +4,7 @@ import { Storage } from './Storage.js';
 import { Notify } from './Notify.js';
 import { MockDb } from '../api/mockDb.js';
 import { ExamService, SubmissionService } from '../api/examService.js';
+import { AuthService } from './AuthService.js';
 
 // רישום שירותים מרכזי (Service Registry).
 // אחראי על יצירת כל השירותים בסדר הנכון של תלויות:
@@ -23,8 +24,9 @@ export function bootstrapServices(overrides = {}) {
   const db = new MockDb({ storage, logger });
   const examService = new ExamService({ db, config, logger });
   const submissionService = new SubmissionService({ db, config, logger });
+  const auth = new AuthService({ db, storage, notify, logger });
 
-  instance = { config, logger, storage, notify, db, examService, submissionService };
+  instance = { config, logger, storage, notify, db, examService, submissionService, auth };
   logger.info(`${config.get('appName')} v${config.get('appVersion')} ready`);
   return instance;
 }
