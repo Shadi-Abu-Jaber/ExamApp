@@ -11,6 +11,7 @@ import HomePage from './pages/HomePage.jsx';
 import PlaceholderPage from './pages/PlaceholderPage.jsx';
 import LoginPage from './pages/auth/LoginPage.jsx';
 import RegisterPage from './pages/auth/RegisterPage.jsx';
+import TeacherRoutes from './pages/teacher/TeacherRoutes.jsx';
 import { ServicesProvider } from './context/ServicesContext.jsx';
 import { AuthProvider, useAuth } from './context/AuthContext.jsx';
 
@@ -32,7 +33,7 @@ function AppShell() {
             path="/teacher/*"
             element={
               <ProtectedRoute role="teacher">
-                <PlaceholderPage title="אזור מורה" note="יוטמע במודול המורים (M3)." />
+                <TeacherRoutes />
               </ProtectedRoute>
             }
           />
