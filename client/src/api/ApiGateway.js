@@ -11,6 +11,13 @@
 // (http) או להישאר עם המסד המקומי בזיכרון (mock). הרכיבים והשירותים
 // אינם רואים את ההבדל — אותה תשובה חוזרת מאותה חתימה.
 
+// כשעובדים מול MockDb צריך להכניס *מופע של מודל* ולא אובייקט גולמי —
+// אחרת אין id (המזהה נוצר בקונסטרקטור) וגם _persist() קורס כי הוא
+// קורא ל-row.toJSON() על כל שורה בטבלה.
+import { Exam } from '../models/Exam.js';
+import { User } from '../models/User.js';
+import { Submission } from '../models/Submission.js';
+
 // כלי עזר קטן: ממתין X מילישניות כדי לדמות השהיית רשת במצב mock.
 function delay(ms) { return new Promise(r => setTimeout(r, ms)); }
 
@@ -82,7 +89,10 @@ export class ApiGateway {
     if (this.mockDb.findOne('users', u => u.email === normalized)) {
       throw new Error('אימייל כבר קיים במערכת');
     }
-    const inserted = this.mockDb.insert('users', { name: name.trim(), email: normalized, password, role });
+    const inserted = this.mockDb.insert(
+      'users',
+      new User({ name: name.trim(), email: normalized, password, role })
+    );
     const { password: _, ...profile } = inserted;
     return profile;
   }
@@ -122,12 +132,17 @@ export class ApiGateway {
       return this._http('/exams', { method: 'POST', body: { title, description, questions, createdBy } });
     }
     await this._simulateLatency();
-    return this.mockDb.insert('exams', {
-      title, description, questions,
-      createdBy,
-      status: 'draft',
-      createdAt: Date.now(),
-    });
+    return this.mockDb.insert(
+      'exams',
+      new Exam({
+        title,
+        description,
+        questions,
+        createdBy,
+        status: 'draft',
+        createdAt: Date.now(),
+      })
+    );
   }
 
   async updateExam(id, patch) {
@@ -179,11 +194,16 @@ export class ApiGateway {
     if (!exam) throw new Error('הבחינה לא נמצאה');
     let score = 0;
     exam.questions.forEach((q, i) => { if (answers[i] === q.correctAnswer) score += 1; });
-    return this.mockDb.insert('submissions', {
-      examId, studentId, answers,
-      score,
-      total: exam.questions.length,
-      submittedAt: Date.now(),
-    });
+    return this.mockDb.insert(
+      'submissions',
+      new Submission({
+        examId,
+        studentId,
+        answers,
+        score,
+        total: exam.questions.length,
+        submittedAt: Date.now(),
+      })
+    );
   }
 }
