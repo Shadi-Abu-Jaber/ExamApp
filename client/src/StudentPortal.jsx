@@ -34,11 +34,11 @@ const StudentPortal = () => {
     // עיצוב באמצעות Bootstrap למיכל ולכותרת.
     <div className="container mt-4">
       <h2 className="mb-4">פורטל סטודנטים</h2>
-      // כרטיס המאפשר להזין מזהה בחינה.
+      {/* כרטיס המאפשר להזין מזהה בחינה. */}
       <div className="card shadow-sm">
         <div className="card-body">
           <h5 className="card-title">הזן מזהה בחינה כדי להתחיל</h5>
-          // קבוצת קלט לכתיבת מזהה הבחינה וכפתור חיפוש.
+          {/* קבוצת קלט לכתיבת מזהה הבחינה וכפתור חיפוש. */}
           <div className="input-group mb-3">
             <input
               type="text"
