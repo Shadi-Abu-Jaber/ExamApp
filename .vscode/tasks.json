@@ -1,0 +1,76 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "client: dev",
+      "detail": "Run Vite dev server (client/) in its own terminal panel.",
+      "type": "npm",
+      "script": "dev",
+      "path": "client",
+      "isBackground": true,
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": false,
+        "panel": "dedicated",
+        "showReuseMessage": false,
+        "group": "examapp",
+        "clear": false
+      },
+      "problemMatcher": {
+        "owner": "vite",
+        "fileLocation": "absolute",
+        "pattern": {
+          "regexp": "^$",
+          "file": 1,
+          "location": 2,
+          "message": 3
+        },
+        "background": {
+          "activeOnStart": true,
+          "beginsPattern": ".*VITE.*",
+          "endsPattern": "Local:\\s+http"
+        }
+      }
+    },
+    {
+      "label": "server: dev",
+      "detail": "Run Express server (backend/) with nodemon in its own terminal panel.",
+      "type": "npm",
+      "script": "dev",
+      "path": "backend",
+      "isBackground": true,
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": false,
+        "panel": "dedicated",
+        "showReuseMessage": false,
+        "group": "examapp",
+        "clear": false
+      },
+      "problemMatcher": {
+        "owner": "examapp-server",
+        "fileLocation": "absolute",
+        "pattern": {
+          "regexp": "^$",
+          "file": 1,
+          "location": 2,
+          "message": 3
+        },
+        "background": {
+          "activeOnStart": true,
+          "beginsPattern": "nodemon.*starting",
+          "endsPattern": "examapp-server listening"
+        }
+      }
+    },
+    {
+      "label": "dev: both (client + server)",
+      "detail": "Run client AND server side-by-side in two terminal panels.",
+      "dependsOn": ["client: dev", "server: dev"],
+      "dependsOrder": "parallel",
+      "problemMatcher": []
+    }
+  ]
+}
