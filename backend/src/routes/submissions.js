@@ -1,3 +1,7 @@
+// ראוטים של הגשות.
+// הציון מחושב בשרת ולא בלקוח — כך לא ניתן "לרמות" עם DevTools.
+// נשמרת רק התוצאה הסופית (score + total), לא התשובות הנכונות לכל שאלה.
+
 import { Router } from 'express';
 import { db } from '../db.js';
 import { httpError } from '../middlewares/errorHandler.js';

@@ -1,3 +1,7 @@
+// ראוטים של בחינות — CRUD + שינוי סטטוס.
+// הוולידציה זהה לזו שבצד הלקוח (Question.isValid) כדי שתנהג בהתאם
+// גם אם הלקוח עוקף את הטופס וקורא ישירות לשרת.
+
 import { Router } from 'express';
 import { db } from '../db.js';
 import { httpError } from '../middlewares/errorHandler.js';
@@ -6,6 +10,7 @@ const router = Router();
 
 const STATUS = new Set(['draft', 'published', 'closed']);
 
+// בודק שהשאלה כוללת טקסט, 2..6 אפשרויות, ותשובה נכונה בטווח תקין.
 function isValidQuestion(q) {
   return (
     q &&

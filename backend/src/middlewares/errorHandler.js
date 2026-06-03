@@ -1,3 +1,7 @@
+// מידלוורים לטיפול בשגיאות ובנתיבים לא קיימים.
+// httpError(status, msg) הוא helper שמייצר Error עם קוד סטטוס, כדי
+// שראוטים יוכלו לזרוק שגיאה ברורה והמידלוור יחזיר אותה ללקוח.
+
 import { logger } from '../logger.js';
 
 const log = logger.child('error');

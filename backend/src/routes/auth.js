@@ -1,3 +1,8 @@
+// ראוטים לאימות — כניסה והרשמה.
+// השרת לא משתמש ב-JWT בשלב זה — מחזיר את הפרופיל הציבורי (ללא סיסמה),
+// והלקוח שומר אותו ב-localStorage. בעתיד יהיה אפשר להחליף ב-JWT ללא
+// שינוי בלקוח, כי כל הצד-שרת מרוכז בקובץ הזה.
+
 import { Router } from 'express';
 import { db } from '../db.js';
 import { httpError } from '../middlewares/errorHandler.js';
@@ -6,6 +11,7 @@ const router = Router();
 
 const ROLES = new Set(['teacher', 'student']);
 
+// מנקה את הסיסמה לפני החזרת המשתמש ללקוח.
 function publicProfile(user) {
   const { password, ...rest } = user;
   return rest;

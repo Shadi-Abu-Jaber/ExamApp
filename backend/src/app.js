@@ -1,3 +1,6 @@
+// הגדרת אפליקציית Express — CORS, JSON, רישום בקשות, ראוטים, וטיפול בשגיאות.
+// CORS מוגדר דרך משתנה סביבה כדי שלא נחשוף את ה-API לדומיינים זרים.
+
 import express from 'express';
 import cors from 'cors';
 import { logger } from './logger.js';

@@ -1,6 +1,11 @@
 // In-memory JSON store. Matches the client MockDb shape so that the client
 // can switch between mock-only and HTTP modes without any component changes.
 
+// מסד נתונים בזיכרון בלבד (ללא דיסק או DB אמיתי).
+// המבנה זהה לזה של ה-MockDb בלקוח — כך אפשר לעבור בלחיצה בין מצב mock
+// במלואו בצד הלקוח לבין שיחה לשרת אמיתי, מבלי לשנות רכיב אחד.
+// אתחול מחדש של השרת מחזיר את הזרע ההתחלתי (אין persistence).
+
 import { logger } from './logger.js';
 
 const log = logger.child('db');
