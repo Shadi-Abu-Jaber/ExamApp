@@ -1,3 +1,7 @@
+// ישות משתמש (User) — תומכת בשני תפקידים: מורה ותלמיד.
+// publicProfile() מחזירה רק את השדות הבטוחים לחשיפה ב-UI
+// (ללא סיסמה), שימושי במיוחד כשמאחסנים את המשתמש המחובר.
+
 export const USER_ROLE = Object.freeze({
   TEACHER: 'teacher',
   STUDENT: 'student',

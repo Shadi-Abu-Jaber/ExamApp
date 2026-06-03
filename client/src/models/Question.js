@@ -1,3 +1,7 @@
+// ישות שאלה (Question) — שאלת אמריקאית בודדת.
+// מכילה טקסט, מערך אפשרויות ואינדקס של התשובה הנכונה.
+// isValid() מרכז את כללי התקינות במקום אחד במקום לפזר אותם בקוד ה-UI.
+
 export class Question {
   constructor({ id, text = '', options = ['', '', '', ''], correctAnswer = 0 } = {}) {
     this.id = id || `q_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`;

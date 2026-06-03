@@ -1,3 +1,7 @@
+// ישות בחינה (Exam) — אוסף שאלות עם סטטוס ניהולי.
+// סטטוסים אפשריים: טיוטה (draft), מפורסם (published), סגור (closed).
+// מתודות כמו publish/close מכילות את כללי המעבר בין הסטטוסים.
+
 import { Question } from './Question.js';
 
 export const EXAM_STATUS = Object.freeze({

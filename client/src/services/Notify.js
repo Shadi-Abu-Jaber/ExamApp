@@ -1,3 +1,7 @@
+// שירות התראות (Notifications) — תבנית פרסום-מנוי (pub/sub).
+// קוד שאינו רכיב React יכול לקרוא ל-push() כדי לשלוח התראה,
+// וה-UI נרשם דרך subscribe() ומציג את ההודעה כ-toast.
+
 export class Notify {
   constructor({ logger } = {}) {
     this.logger = logger;

@@ -1,3 +1,7 @@
+// מסד נתונים מדומה (MockDb) — מחליף שרת אמיתי בשלב זה.
+// טבלאות בזיכרון: users, exams, submissions. הכל נשמר ב-Storage
+// כדי שהמצב יישמר בין רענונים. בטעינה ראשונה זורעים נתוני דמו.
+
 import { Exam, EXAM_STATUS } from '../models/Exam.js';
 import { Question } from '../models/Question.js';
 import { User, USER_ROLE } from '../models/User.js';
@@ -43,6 +47,7 @@ export class MockDb {
     this._load();
   }
 
+  // טעינה ראשונית: אם יש נתונים שמורים — משחזרים; אחרת זורעים demo.
   _load() {
     const saved = this.storage.get('mockdb');
     if (saved && saved.users?.length) {

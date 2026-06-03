@@ -1,6 +1,12 @@
+// שירות בחינות (ExamService) ושירות הגשות (SubmissionService).
+// שני השירותים עוטפים את ה-MockDb ומוסיפים:
+//   1. סימולציה של השהיית רשת (כדי שהפיתוח ידמה backend אמיתי)
+//   2. ולידציה וכללי דומיין (פרסום, חישוב ציון וכו')
+
 import { Exam, EXAM_STATUS } from '../models/Exam.js';
 import { Submission } from '../models/Submission.js';
 
+// כלי עזר קטן: ממתין X מילישניות לפני המשך הקוד.
 function delay(ms) {
   return new Promise(resolve => setTimeout(resolve, ms));
 }
@@ -86,11 +92,14 @@ export class SubmissionService {
     return this.db.list('submissions').filter(s => s.examId === examId);
   }
 
+  // הגשת בחינה: מקבל את התשובות, סוגר אותן מול הבחינה ומחשב ציון.
+  // הציון מחושב כאן (ולא בלקוח) כדי לרכז את הכלל במקום אחד.
   async submit({ examId, studentId, answers }) {
     await this._simulateLatency();
     const exam = this.db.findById('exams', examId);
     if (!exam) throw new Error('הבחינה לא נמצאה');
 
+    // מעבר על השאלות, נקודה אחת לכל תשובה נכונה.
     let score = 0;
     exam.questions.forEach((q, i) => {
       if (answers[i] === q.correctAnswer) score += 1;

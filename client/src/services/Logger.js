@@ -1,3 +1,9 @@
+// שירות לוגים מבוסס מחלקה (OOP).
+// מספק רמות לוג (debug/info/warn/error/silent), תחילית (prefix) לזיהוי המקור,
+// והאפשרות ליצור logger-ים בנים (child) עם תחילית מורחבת — שימושי
+// להבחנה בין רכיבים שונים כשמסתכלים בקונסולה.
+
+// טבלת רמות מספרית — לוג בעל רמה נמוכה מהרף לא ייכתב.
 const LEVELS = { debug: 10, info: 20, warn: 30, error: 40, silent: 99 };
 
 export class Logger {
@@ -17,6 +23,8 @@ export class Logger {
     });
   }
 
+  // מתודה פנימית שמדפיסה לוג רק אם רמתו עוברת את הרף שהוגדר.
+  // מוסיפה חותמת זמן ותחילית כדי שיהיה קל לעקוב בקונסולה.
   _emit(levelName, args) {
     if (LEVELS[levelName] < this.level) return;
     const stamp = new Date().toISOString().split('T')[1].replace('Z', '');

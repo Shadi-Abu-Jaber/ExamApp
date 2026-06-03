@@ -1,3 +1,6 @@
+// אזור תצוגת ה-toast-ים — מאזין ל-Notify ומציג התראות מרחפות.
+// יושב גבוה ב-DOM כדי שיהיה גלוי מעל כל שאר התוכן.
+
 import React from 'react';
 import { useNotifyToasts } from '../context/ServicesContext.jsx';
 

@@ -1,3 +1,8 @@
+// קומפוננטת השורש של האפליקציה.
+// אחראית על: הספקת השירותים לעץ הרכיבים, הצגת תפריט הניווט והוטסטים,
+// וניתוב בין העמודים השונים. מצב המשתמש נשמר ב-Storage כדי להישמר
+// בין רענונים.
+
 import React, { useState } from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import NavigationMenu from './components/NavigationMenu.jsx';

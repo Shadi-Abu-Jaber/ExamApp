@@ -5,8 +5,14 @@ import { Notify } from './Notify.js';
 import { MockDb } from '../api/mockDb.js';
 import { ExamService, SubmissionService } from '../api/examService.js';
 
+// רישום שירותים מרכזי (Service Registry).
+// אחראי על יצירת כל השירותים בסדר הנכון של תלויות:
+// Config → Logger → Storage → Notify → MockDb → ExamService/SubmissionService.
+// נשמר instance יחיד כדי שכל האפליקציה תעבוד מול אותם מופעים (singleton).
+
 let instance = null;
 
+// יוצר את גרף השירותים פעם אחת ומחזיר אותו בכל קריאה נוספת.
 export function bootstrapServices(overrides = {}) {
   if (instance) return instance;
 
