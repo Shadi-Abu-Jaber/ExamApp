@@ -1,0 +1,153 @@
+==============================================================================
+UML — CLASS DIAGRAM (text form, PlantUML-style)
+==============================================================================
+Covers every non-component class in src/services/, src/api/, and src/models/.
+
+------------------------------------------------------------------------------
+SERVICES
+------------------------------------------------------------------------------
+
++--------------------------+        +--------------------------+
+|        Logger            |        |         Config           |
++--------------------------+        +--------------------------+
+| - prefix: string         |        | - _values: object        |
+| - level: number          |        +--------------------------+
++--------------------------+        | + get(key)               |
+| + setLevel(level)        |        | + set(key, value)        |
+| + child(subPrefix)       |        | + all()                  |
+| + debug(...args)         |        +--------------------------+
+| + info(...args)          |
+| + warn(...args)          |
+| + error(...args)         |
+| - _emit(levelName,args)  |
++--------------------------+
+
++--------------------------+        +--------------------------+
+|         Storage          |        |          Notify          |
++--------------------------+        +--------------------------+
+| - prefix: string         |        | - _subscribers: Set      |
+| - logger: Logger         |        | - _nextId: number        |
+| - available: bool        |        | - logger: Logger         |
+| - _mem: Map (fallback)   |        +--------------------------+
++--------------------------+        | + subscribe(handler)     |
+| + get(key, fallback)     |        | + push({type,message,..})|
+| + set(key, value)        |        | + info/success/warn/error|
+| + remove(key)            |        | - _emit(toast)           |
+| + clearNamespace()       |        +--------------------------+
+| - _probe()               |
+| - _key(key)              |
++--------------------------+
+
++--------------------------+
+|       AuthService        |
++--------------------------+
+| - db: MockDb             |
+| - storage: Storage       |
+| - notify: Notify         |
+| - logger: Logger         |
++--------------------------+
+| + getCurrentUser()       |
+| + login(email, password) |
+| + register({...})        |
+| + logout()               |
++--------------------------+
+
+ServiceRegistry  (module, not a class)
++ bootstrapServices(overrides) → { config, logger, storage, notify, db,
+                                   examService, submissionService, auth }
++ getServices()
+
+------------------------------------------------------------------------------
+API LAYER
+------------------------------------------------------------------------------
+
++--------------------------+
+|         MockDb           |
++--------------------------+
+| - storage: Storage       |
+| - logger: Logger         |
+| - tables:                |
+|     { users, exams,      |
+|       submissions }      |
++--------------------------+
+| + list(table)            |
+| + findById(table, id)    |
+| + findOne(table, pred)   |
+| + insert(table, inst)    |
+| + update(table, id, p)   |
+| + remove(table, id)      |
+| + reset()                |
+| - _load()                |
+| - _persist()             |
++--------------------------+
+            ▲
+            │ used by
+            │
++--------------------------+        +--------------------------+
+|      ExamService         |        |    SubmissionService     |
++--------------------------+        +--------------------------+
+| - db, config, logger     |        | - db, config, logger     |
++--------------------------+        +--------------------------+
+| + listAll()              |        | + listByStudent(id)      |
+| + listPublished()        |        | + listByExam(id)         |
+| + listByTeacher(tid)     |        | + submit({examId,        |
+| + getById(id)            |        |           studentId,     |
+| + create({...})          |        |           answers})      |
+| + update(id, patch)      |        +--------------------------+
+| + setStatus(id, status)  |
+| + remove(id)             |
+| - _simulateLatency()     |
++--------------------------+
+
+------------------------------------------------------------------------------
+MODELS
+------------------------------------------------------------------------------
+
++--------------------------+        +--------------------------+
+|         User             |        |         Question         |
++--------------------------+        +--------------------------+
+| + id, name, email        |        | + id                     |
+| + password (mock)        |        | + text                   |
+| + role: USER_ROLE        |        | + options: string[2..6]  |
++--------------------------+        | + correctAnswer: number  |
+| + isTeacher()            |        +--------------------------+
+| + isStudent()            |        | + isValid()              |
+| + publicProfile()        |        | + toJSON()               |
+| + toJSON()               |        | + static from(raw)       |
+| + static from(raw)       |        +--------------------------+
++--------------------------+
+
++--------------------------+        +--------------------------+
+|          Exam            |        |        Submission        |
++--------------------------+        +--------------------------+
+| + id, title, description |        | + id                     |
+| + status: EXAM_STATUS    |        | + examId                 |
+| + questions: Question[]  | 1 - *  | + studentId              |
+| + createdBy, createdAt   |◀───────│ + answers: number[]      |
++--------------------------+        | + score, total           |
+| + isPublishable()        |        | + submittedAt            |
+| + publish() / close()    |        +--------------------------+
+| + toDraft()              |        | + percentage()           |
+| + toJSON()               |        | + toJSON()               |
+| + static from(raw)       |        | + static from(raw)       |
++--------------------------+        +--------------------------+
+
+Enums:
+  USER_ROLE   = { TEACHER: 'teacher', STUDENT: 'student' }
+  EXAM_STATUS = { DRAFT: 'draft', PUBLISHED: 'published', CLOSED: 'closed' }
+
+==============================================================================
+KEY RELATIONSHIPS
+==============================================================================
+ServiceRegistry  ─▶ creates ─▶ Config, Logger, Storage, Notify
+                 ─▶ creates ─▶ MockDb(storage, logger)
+                 ─▶ creates ─▶ ExamService(db, config, logger)
+                 ─▶ creates ─▶ SubmissionService(db, config, logger)
+                 ─▶ creates ─▶ AuthService(db, storage, notify, logger)
+
+ExamService.create()          ─▶ inserts Exam into MockDb('exams')
+ExamService.setStatus()       ─▶ updates Exam.status in MockDb
+SubmissionService.submit()    ─▶ loads Exam, computes score, inserts Submission
+AuthService.login/register()  ─▶ reads/writes 'users' in MockDb;
+                                  writes 'current_user' via Storage
+==============================================================================
