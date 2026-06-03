@@ -1,3 +1,7 @@
+// עמוד התחברות.
+// מקבל אימייל וסיסמה, קורא ל-AuthContext.login, ובהצלחה מנווט
+// לדשבורד לפי התפקיד (מורה / תלמיד). כולל רמז לחשבונות דמו.
+
 import React, { useState } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext.jsx';

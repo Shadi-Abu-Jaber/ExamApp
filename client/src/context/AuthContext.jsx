@@ -1,3 +1,7 @@
+// Context שמייצג את מצב ההזדהות לרכיבי React.
+// עוטף את AuthService ושומר את המשתמש המחובר ב-state כך שכל הרכיבים
+// מתעדכנים אוטומטית כשמתחברים/יוצאים.
+
 import React, { createContext, useContext, useState, useCallback } from 'react';
 import { useServices } from './ServicesContext.jsx';
 

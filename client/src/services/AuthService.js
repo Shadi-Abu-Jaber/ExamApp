@@ -1,3 +1,7 @@
+// שירות אימות (AuthService) — מרכז את כל הלוגיקה של כניסה והרשמה.
+// עובד מול ה-MockDb (טבלת users) ושומר את המשתמש המחובר ב-Storage,
+// כך שהמצב נשמר בין רענונים. הסיסמה אינה נשמרת בפרופיל הציבורי.
+
 import { User, USER_ROLE } from '../models/User.js';
 
 const CURRENT_USER_KEY = 'current_user';
@@ -28,6 +32,8 @@ export class AuthService {
     return profile;
   }
 
+  // יוצר משתמש חדש לאחר ולידציה ושומר אותו במסד המדומה.
+  // אם האימייל כבר תפוס — נזרקת שגיאה ברורה לעברית.
   async register({ name, email, password, role }) {
     const normalized = (email || '').toLowerCase().trim();
     if (!name?.trim()) throw new Error('יש להזין שם');
