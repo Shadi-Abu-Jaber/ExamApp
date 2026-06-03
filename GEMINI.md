@@ -1,80 +1,72 @@
-# ExamFlow Project
+# ExamApp Project
 
-A comprehensive Examination Management System designed for admins, lecturers, and students. It facilitates exam creation, monitoring, student submissions, and automated/manual grading.
+An Examination Management System for teachers and students. Teachers create and publish exams; students browse, take them, and see their results.
 
 ## Project Overview
 
-- **Architecture:** Client-Server architecture with a decoupled frontend and backend.
+- **Architecture:** Client-server. The client runs standalone in mock mode (localStorage) or switches to HTTP mode to talk to the Express server.
 - **Technologies:**
-  - **Backend:** Node.js, Express.js, Prisma ORM, PostgreSQL.
-  - **Frontend:** React (Vite), Tailwind CSS, React Router, Recharts, Lucide Icons.
-  - **Authentication:** JWT-based authentication with role-based access control (ADMIN, LECTURER, STUDENT).
+  - **Backend:** Node.js, Express.js, in-memory JSON store (`backend/src/db.js`).
+  - **Frontend:** React 19 (Vite), Bootstrap 5, OOP service layer (Config / Logger / Storage / Notify / AuthService / ApiGateway).
+  - **Auth:** Role-based (teacher / student) stored in localStorage via AuthService.
 
 ## Directory Structure
 
-- `backend/`: Express.js server and Prisma database configuration.
-- `frontend/`: Primary React application with a modern UI using Tailwind CSS.
-- `client/`: An alternative or legacy React implementation.
-- `docs/`: Project documentation, including UML diagrams and feature specifications.
+- `backend/`: Express server — routes for `/auth`, `/exams`, `/submissions`. Seeded in-memory store, no database needed.
+- `client/`: React SPA — the live project deployed to GitHub Pages.
+- `docs/`: Project documentation and UML diagrams.
+- `.vscode/`: Shared workspace config (tasks + debug launchers).
 
 ## Building and Running
 
 ### Backend
 
-1. Navigate to the backend directory:
-   ```bash
-   cd backend
-   ```
-2. Install dependencies:
-   ```bash
-   npm install
-   ```
-3. Configure environment variables:
-   - Copy `.env.example` to `.env`.
-   - Update `DATABASE_URL` with your PostgreSQL connection string.
-4. Initialize the database:
-   ```bash
-   npx prisma migrate dev
-   npx prisma db seed
-   ```
-5. Start the development server:
-   ```bash
-   npm run dev
-   ```
+```bash
+cd backend
+npm install
+npm run dev          # nodemon on src/server.js, default PORT=4000
+```
 
-### Frontend
+### Client
 
-1. Navigate to the frontend directory:
-   ```bash
-   cd frontend
-   ```
-2. Install dependencies:
-   ```bash
-   npm install
-   ```
-3. Start the development server:
-   ```bash
-   npm run dev
-   ```
+```bash
+cd client
+npm install
+npm run dev          # Vite dev server at http://localhost:5173
+```
+
+By default the client runs in **mock mode** (no server needed). To switch to HTTP mode:
+
+```bash
+# Option 1 — .env file
+echo "VITE_DATA_MODE=http" > client/.env
+
+# Option 2 — browser DevTools console, then refresh
+localStorage.setItem('examapp::dataMode', 'http')
+```
+
+### Both together (VS Code)
+
+Open the repo in VS Code and run **Tasks: Run Task → dev: both (client + server)**.  
+For debugging use the **Run & Debug** panel: Debug Server (Node), Debug Client (Chrome), or Debug Both.
 
 ## Development Conventions
 
 ### Backend
-- **Controllers:** Business logic is located in `backend/src/controllers/`.
-- **Routes:** API endpoints are defined in `backend/src/routes/`.
-- **Middleware:** Authentication and error handling are managed in `backend/src/middlewares/`.
-- **Validation:** Request data is validated using `express-validator` in `backend/src/validators/`.
-- **Prisma:** The database schema is defined in `backend/prisma/schema.prisma`.
+- **Routes:** `backend/src/routes/` — `exams.js`, `submissions.js`, `auth.js`.
+- **DB:** `backend/src/db.js` — simple in-memory store seeded on boot.
+- **Middleware:** `backend/src/middlewares/errorHandler.js`.
 
-### Frontend
-- **Components:** Reusable UI components are in `frontend/src/components/`.
-- **Pages:** Top-level view components are in `frontend/src/pages/`, organized by user role.
-- **Context:** Global state (like Auth) is managed in `frontend/src/context/`.
-- **API Services:** Backend communication is centralized in `frontend/src/api/`.
-- **Styling:** Follow Tailwind CSS utility-first patterns.
+### Client
+- **Models:** `client/src/models/` — `Exam`, `Question`, `User`, `Submission` (plain ES6 classes with `toJSON` / `isValid`).
+- **Services:** `client/src/services/` — `Config`, `Logger`, `Storage`, `Notify`, `AuthService`, `ServiceRegistry`.
+- **API layer:** `client/src/api/ApiGateway.js` — single class that routes every call to mock or HTTP based on `dataMode`.
+- **Pages:** `client/src/pages/` — split by role (`teacher/`, `student/`, `auth/`).
+- **Components:** `client/src/components/` — shared UI + teacher-specific editors.
 
-## Key Features
-- **AI-Powered Question Generation:** Located in `frontend/src/pages/lecturer/AiTools.jsx`.
-- **Exam Monitoring:** Real-time monitoring for lecturers in `frontend/src/pages/lecturer/ExamMonitor.jsx`.
-- **Analytics:** Performance tracking for lecturers and students.
-- **Role-Based Dashboards:** Distinct experiences for Admins, Lecturers, and Students.
+## Demo credentials
+
+| Role    | Email                | Password    |
+|---------|----------------------|-------------|
+| Teacher | teacher@demo.test    | teacher123  |
+| Student | student@demo.test    | student123  |
