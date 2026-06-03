@@ -1,3 +1,7 @@
+// רשימת הבחינות של המורה.
+// תומכת בכל מעברי הסטטוס: טיוטה → מפורסם → סגור → טיוטה (לולאת חזרה).
+// פעולת מחיקה מאומתת עם confirm() לפני קריאה ל-service.
+
 import React, { useEffect, useState, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import { useServices } from '../../context/ServicesContext.jsx';

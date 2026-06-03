@@ -1,3 +1,7 @@
+// עורך שאלה בודדת — טקסט שאלה, אפשרויות, וסימון התשובה הנכונה.
+// מגביל ל-2..6 אפשרויות. עדכון התשובה הנכונה מתעדכן אוטומטית
+// כאשר אפשרות שלפניה נמחקת.
+
 import React from 'react';
 
 export default function QuestionEditor({ index, question, onChange, onRemove }) {

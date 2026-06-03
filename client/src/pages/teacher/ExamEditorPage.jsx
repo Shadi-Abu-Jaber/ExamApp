@@ -1,3 +1,7 @@
+// עמוד עריכת בחינה.
+// טוען את הבחינה לפי המזהה, מאפשר עריכה של כל השדות ושינוי סטטוס
+// (טיוטה / מפורסם / סגור) מתוך כפתורים בכותרת.
+
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useServices } from '../../context/ServicesContext.jsx';
