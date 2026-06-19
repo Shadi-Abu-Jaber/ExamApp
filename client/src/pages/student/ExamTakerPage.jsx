@@ -65,7 +65,11 @@ export default function ExamTakerPage() {
       setResult(submission);
       const pct = submission.total ? Math.round((submission.score / submission.total) * 100) : 0;
       const passed = pct >= config.get('passingGrade');
-      (passed ? notify.success : notify.warn)(`ציון: ${pct}%`);
+      // נקרא כמתודה על notify כדי לשמור על this — קריאה דרך
+      // (passed ? notify.success : notify.warn)(...) מנתקת את ה-binding
+      // ו-this.push קורס עם "Cannot read properties of undefined".
+      const msg = `ציון: ${pct}%`;
+      if (passed) notify.success(msg); else notify.warn(msg);
     } catch (err) {
       notify.error(err?.message || 'שגיאה בהגשה');
     } finally {
