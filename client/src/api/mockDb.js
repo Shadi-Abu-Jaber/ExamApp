@@ -104,9 +104,16 @@ export class MockDb {
     const idx = this.tables[table].findIndex(r => r.id === id);
     if (idx === -1) return null;
     const current = this.tables[table][idx];
-    Object.assign(current, patch);
+    // ה-patch עשוי להגיע עם אובייקטים גולמיים (למשל questions מהטופס) ולא
+    // עם מופעי מודל. מיזוג ובנייה מחדש דרך הקונסטרקטור של השורה שומרים על
+    // המופעים המקוננים (Exam.questions → Question) כך ש-_persist()/toJSON()
+    // לא קורסים עם "q.toJSON is not a function".
+    const Model = current.constructor;
+    const merged = { ...(current.toJSON ? current.toJSON() : current), ...patch };
+    const next = (Model && Model !== Object) ? new Model(merged) : merged;
+    this.tables[table][idx] = next;
     this._persist();
-    return current.toJSON ? current.toJSON() : { ...current };
+    return next.toJSON ? next.toJSON() : { ...next };
   }
 
   remove(table, id) {
