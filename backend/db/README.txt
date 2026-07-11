@@ -3,6 +3,9 @@ ExamApp — DB layer (HYBRID: relational + JSONB)
 ==============================================================================
 
 קבצים בתיקייה הזו:
+  Dockerfile          — תמונת Postgres 16 לפיתוח לוקאלי (Docker כבסיס נתונים).
+                        מעתיקה את 01/02 ל-docker-entrypoint-initdb.d ומזריעה אוטומטית.
+  DOCKER.md           — מדריך הרמת DB לוקאלי עם Docker (compose או ידני) + 3 תצורות עבודה.
   01_schema.sql       — יצירת טבלאות users / exams / submissions.
                         עמודת questions ב-exams היא JSONB (HYBRID).
   02_seed.sql         — הזרעת נתוני דמו (2 משתמשים, 2 בחינות).
@@ -11,6 +14,17 @@ ExamApp — DB layer (HYBRID: relational + JSONB)
   connect-test.js     — סקריפט Node שמדגים את אותו זרימה מתוך הקוד:
                         חיבור, שליפה, לולאה על השאלות כאובייקטי JSON.
   README.txt          — הקובץ הזה.
+
+==============================================================================
+דרך מהירה: DATABASE לוקאלי עם DOCKER (מומלץ — אין צורך להתקין Postgres)
+==============================================================================
+  cd backend
+  npm run db:up        # מרים Postgres בקונטיינר, זורע סכמה + דמו אוטומטית
+  npm run db:test      # מאמת חיבור ושליפות (== node backend/db/connect-test.js)
+  npm run db:down      # עצירה
+
+  פרטים מלאים ופתרון תקלות: backend/db/DOCKER.md
+  (ההוראות שלמטה מיועדות למי שמריץ Postgres מותקן מקומית, ללא Docker.)
 
 ==============================================================================
 דרישות מקדימות
