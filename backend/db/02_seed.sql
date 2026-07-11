@@ -10,10 +10,12 @@ TRUNCATE submissions, exams, users RESTART IDENTITY CASCADE;
 
 -- ----------------------------------------------------------------------------
 -- USERS
+-- הסיסמאות נשמרות כ-bcrypt hashes (לא בטקסט גלוי). ערכי הדמו:
+--   teacher@demo.test / teacher123   ·   student@demo.test / student123
 -- ----------------------------------------------------------------------------
 INSERT INTO users (id, name, email, password, role) VALUES
-  ('u_teacher_demo', 'מורה לדוגמה',  'teacher@demo.test', 'teacher123', 'teacher'),
-  ('u_student_demo', 'תלמיד לדוגמה', 'student@demo.test', 'student123', 'student');
+  ('u_teacher_demo', 'מורה לדוגמה',  'teacher@demo.test', '$2b$10$pORnoQS0o9pa7AAhH4j5Dear72Ys8a1BEb/ItvP3Omf6kuiVattz2', 'teacher'),
+  ('u_student_demo', 'תלמיד לדוגמה', 'student@demo.test', '$2b$10$8nb1m0cRmoFhGK3fa/FjL.izkwUVgcYHuc/EuAx/Z9gT7C4WW5BQy', 'student');
 
 -- ----------------------------------------------------------------------------
 -- EXAMS — שאלות כ-JSONB

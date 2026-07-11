@@ -1,10 +1,14 @@
 // ראוטים של בחינות — CRUD + שינוי סטטוס.
-// הוולידציה זהה לזו שבצד הלקוח (Question.isValid) כדי שתנהג בהתאם
-// גם אם הלקוח עוקף את הטופס וקורא ישירות לשרת.
+// כל הראוטים דורשים הזדהות (authRequired). פעולות שינוי דורשות תפקיד
+// 'teacher' וגם בעלות על הבחינה (createdBy === המשתמש המחובר), כדי
+// שמורה לא יוכל לערוך/למחוק בחינות של מורה אחר. createdBy נלקח מהטוקן
+// ולא מגוף הבקשה — הלקוח לא יכול "להתחזות" ליוצר אחר.
 
 import { Router } from 'express';
-import { db } from '../db.js';
+import * as examsRepo from '../repositories/examsRepo.js';
 import { httpError } from '../middlewares/errorHandler.js';
+import { authRequired, requireRole } from '../middlewares/auth.js';
+import { genId } from '../ids.js';
 
 const router = Router();
 
@@ -21,44 +25,55 @@ function isValidQuestion(q) {
   );
 }
 
-router.get('/', (req, res) => {
-  let exams = db.list('exams');
-  const { status, teacherId } = req.query;
-  if (status) exams = exams.filter(e => e.status === status);
-  if (teacherId) exams = exams.filter(e => e.createdBy === teacherId);
-  res.json(exams);
-});
+// טוען בחינה ומוודא שהמשתמש המחובר הוא הבעלים. משמש כל ראוט משנה.
+async function loadOwnedExam(req) {
+  const exam = await examsRepo.findById(req.params.id);
+  if (!exam) throw httpError(404, 'הבחינה לא נמצאה');
+  if (exam.createdBy !== req.user.id) throw httpError(403, 'אין הרשאה לבחינה זו');
+  return exam;
+}
 
-router.get('/:id', (req, res, next) => {
-  const exam = db.findById('exams', req.params.id);
-  if (!exam) return next(httpError(404, 'הבחינה לא נמצאה'));
-  res.json(exam);
-});
+router.use(authRequired);
 
-router.post('/', (req, res, next) => {
+router.get('/', async (req, res, next) => {
   try {
-    const { title, description = '', questions = [], createdBy } = req.body || {};
+    const { status, teacherId } = req.query;
+    res.json(await examsRepo.list({ status, teacherId }));
+  } catch (err) { next(err); }
+});
+
+router.get('/:id', async (req, res, next) => {
+  try {
+    const exam = await examsRepo.findById(req.params.id);
+    if (!exam) throw httpError(404, 'הבחינה לא נמצאה');
+    res.json(exam);
+  } catch (err) { next(err); }
+});
+
+router.post('/', requireRole('teacher'), async (req, res, next) => {
+  try {
+    const { title, description = '', questions = [] } = req.body || {};
     if (!title?.trim()) throw httpError(400, 'נדרשת כותרת');
-    if (!createdBy) throw httpError(400, 'נדרש מזהה יוצר');
     if (!Array.isArray(questions) || questions.length === 0) throw httpError(400, 'נדרשת לפחות שאלה אחת');
     for (let i = 0; i < questions.length; i += 1) {
       if (!isValidQuestion(questions[i])) throw httpError(400, `שאלה ${i + 1} אינה תקינה`);
     }
 
-    const created = db.insert('exams', {
+    const created = await examsRepo.insert({
+      id: genId('exam'),
       title: title.trim(),
       description,
       status: 'draft',
+      createdBy: req.user.id, // סמכותי — מתעלמים מכל createdBy שהגיע מהלקוח
       questions,
-      createdBy,
-      createdAt: Date.now(),
     });
     res.status(201).json(created);
   } catch (err) { next(err); }
 });
 
-router.put('/:id', (req, res, next) => {
+router.put('/:id', requireRole('teacher'), async (req, res, next) => {
   try {
+    await loadOwnedExam(req);
     const { title, description, questions } = req.body || {};
     const patch = {};
     if (title != null) patch.title = String(title).trim();
@@ -70,26 +85,25 @@ router.put('/:id', (req, res, next) => {
       }
       patch.questions = questions;
     }
-    const updated = db.update('exams', req.params.id, patch);
-    if (!updated) throw httpError(404, 'הבחינה לא נמצאה');
-    res.json(updated);
+    res.json(await examsRepo.update(req.params.id, patch));
   } catch (err) { next(err); }
 });
 
-router.patch('/:id/status', (req, res, next) => {
+router.patch('/:id/status', requireRole('teacher'), async (req, res, next) => {
   try {
     const { status } = req.body || {};
     if (!STATUS.has(status)) throw httpError(400, 'סטטוס לא תקין');
-    const updated = db.update('exams', req.params.id, { status });
-    if (!updated) throw httpError(404, 'הבחינה לא נמצאה');
-    res.json(updated);
+    await loadOwnedExam(req);
+    res.json(await examsRepo.update(req.params.id, { status }));
   } catch (err) { next(err); }
 });
 
-router.delete('/:id', (req, res, next) => {
-  const ok = db.remove('exams', req.params.id);
-  if (!ok) return next(httpError(404, 'הבחינה לא נמצאה'));
-  res.status(204).end();
+router.delete('/:id', requireRole('teacher'), async (req, res, next) => {
+  try {
+    await loadOwnedExam(req);
+    await examsRepo.remove(req.params.id);
+    res.status(204).end();
+  } catch (err) { next(err); }
 });
 
 export default router;

@@ -26,7 +26,13 @@ export class ApiGateway {
     this.config = config;
     this.mockDb = mockDb;
     this.logger = logger?.child('api');
+    // טוקן ה-JWT למצב http. נשמר/משוחזר על ידי AuthService (localStorage)
+    // ונשלח בכותרת Authorization בכל בקשה. במצב mock נשאר null.
+    this._token = null;
   }
+
+  // מוגדר על ידי AuthService בכניסה/הרשמה ובעליית האפליקציה (rehydrate).
+  setToken(token) { this._token = token || null; }
 
   get mode() { return this.config.get('dataMode'); }
   get baseUrl() { return this.config.get('serverBaseUrl'); }
@@ -42,9 +48,12 @@ export class ApiGateway {
       : '';
     const url = `${this.baseUrl}${path}${qs}`;
     this.logger?.debug(method, url);
+    const headers = {};
+    if (body) headers['Content-Type'] = 'application/json';
+    if (this._token) headers.Authorization = `Bearer ${this._token}`;
     const res = await fetch(url, {
       method,
-      headers: body ? { 'Content-Type': 'application/json' } : undefined,
+      headers,
       body: body ? JSON.stringify(body) : undefined,
     });
     if (res.status === 204) return true;
@@ -64,21 +73,25 @@ export class ApiGateway {
   //  AUTH
   // ────────────────────────────────────────────────────────────────────
 
+  // מחזיר תמיד { user, token } בשני המצבים — במצב mock אין טוקן (null),
+  // כך ש-AuthService מטפל בשניהם באותו קוד.
   async login(email, password) {
     if (this.mode === 'http') {
-      return this._http('/auth/login', { method: 'POST', body: { email, password } });
+      const data = await this._http('/auth/login', { method: 'POST', body: { email, password } });
+      return { user: data.user, token: data.token };
     }
     await this._simulateLatency();
     const normalized = (email || '').toLowerCase().trim();
     const user = this.mockDb.findOne('users', u => u.email === normalized && u.password === password);
     if (!user) throw new Error('אימייל או סיסמה שגויים');
     const { password: _, ...profile } = user;
-    return profile;
+    return { user: profile, token: null };
   }
 
   async register({ name, email, password, role }) {
     if (this.mode === 'http') {
-      return this._http('/auth/register', { method: 'POST', body: { name, email, password, role } });
+      const data = await this._http('/auth/register', { method: 'POST', body: { name, email, password, role } });
+      return { user: data.user, token: data.token };
     }
     await this._simulateLatency();
     const normalized = (email || '').toLowerCase().trim();
@@ -94,7 +107,7 @@ export class ApiGateway {
       new User({ name: name.trim(), email: normalized, password, role })
     );
     const { password: _, ...profile } = inserted;
-    return profile;
+    return { user: profile, token: null };
   }
 
   // ────────────────────────────────────────────────────────────────────

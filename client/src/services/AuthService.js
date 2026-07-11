@@ -9,6 +9,7 @@
 // השירות עצמו רק שומר את הפרופיל ב-Storage ומציג toast הצלחה.
 
 const CURRENT_USER_KEY = 'current_user';
+const TOKEN_KEY = 'auth_token';
 
 export class AuthService {
   constructor({ gateway, storage, notify, logger }) {
@@ -16,19 +17,33 @@ export class AuthService {
     this.storage = storage;
     this.notify = notify;
     this.logger = logger?.child('auth');
+    // שחזור טוקן קיים בעליית האפליקציה — כדי שבקשות http יישארו מאומתות
+    // אחרי רענון דף. במצב mock אין טוקן ולכן אין מה לשחזר.
+    const savedToken = this.storage.get(TOKEN_KEY);
+    if (savedToken) this.gateway.setToken?.(savedToken);
   }
 
   getCurrentUser() {
     return this.storage.get(CURRENT_USER_KEY);
   }
 
+  // שומר את הפרופיל, ואם התקבל טוקן (מצב http) — שומר אותו ומגדיר אותו
+  // ב-gateway כך שכל בקשה הבאה תישלח עם Authorization.
+  _persistSession(user, token) {
+    this.storage.set(CURRENT_USER_KEY, user);
+    if (token) {
+      this.storage.set(TOKEN_KEY, token);
+      this.gateway.setToken?.(token);
+    }
+  }
+
   async login(email, password) {
     try {
-      const profile = await this.gateway.login(email, password);
-      this.storage.set(CURRENT_USER_KEY, profile);
-      this.logger?.info('login ok', profile.email, profile.role);
-      this.notify?.success(`ברוך הבא, ${profile.name}`);
-      return profile;
+      const { user, token } = await this.gateway.login(email, password);
+      this._persistSession(user, token);
+      this.logger?.info('login ok', user.email, user.role);
+      this.notify?.success(`ברוך הבא, ${user.name}`);
+      return user;
     } catch (err) {
       this.logger?.warn('login failed', err?.message);
       throw err;
@@ -36,16 +51,18 @@ export class AuthService {
   }
 
   async register(payload) {
-    const profile = await this.gateway.register(payload);
-    this.storage.set(CURRENT_USER_KEY, profile);
-    this.logger?.info('register ok', profile.email, profile.role);
-    this.notify?.success(`חשבון נוצר בהצלחה. ברוך הבא, ${profile.name}`);
-    return profile;
+    const { user, token } = await this.gateway.register(payload);
+    this._persistSession(user, token);
+    this.logger?.info('register ok', user.email, user.role);
+    this.notify?.success(`חשבון נוצר בהצלחה. ברוך הבא, ${user.name}`);
+    return user;
   }
 
   logout() {
     const current = this.getCurrentUser();
     this.storage.remove(CURRENT_USER_KEY);
+    this.storage.remove(TOKEN_KEY);
+    this.gateway.setToken?.(null);
     this.logger?.info('logout', current?.email);
   }
 }
