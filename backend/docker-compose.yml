@@ -1,0 +1,47 @@
+# ============================================================================
+# ExamApp — local PostgreSQL via Docker Compose (recommended path).
+# ----------------------------------------------------------------------------
+# עוטף את ה-Dockerfile שב-./db בפקודה אחת נוחה, ומוסיף:
+#   * named volume (examapp_pgdata) — הנתונים שורדים בין הפעלות (persistence).
+#   * healthcheck — כדי לדעת מתי ה-DB באמת מוכן לחיבור.
+#   * מיפוי פורט הניתן להגדרה דרך PG_PORT (ברירת מחדל 5432).
+#
+# שימוש (מתוך backend/):
+#   docker compose up -d        # הרמת ה-DB ברקע (בונה את התמונה בפעם הראשונה)
+#   docker compose logs -f db   # מעקב אחרי לוגים
+#   docker compose down         # עצירה (הנתונים נשמרים ב-volume)
+#   docker compose down -v      # עצירה + מחיקת הנתונים (init יופעל מחדש בהעלאה הבאה)
+#
+# הערה: אם כבר רץ Postgres מקומי (native) על 5432, הגדירו PG_PORT=5433
+# לפני ההרצה כדי להימנע מהתנגשות פורטים.
+#
+# פרטי החיבור של ה-DB הלוקאלי קבועים בכוונה (postgres / postgres / examapp),
+# תואמים ל-Dockerfile ול-backend/.env.example. הם אינם נגזרים מ-backend/.env
+# כדי שהקונטיינר יהיה עצמאי — ולמנוע מצב שבו סיסמת ה-native install שלכם
+# (למשל כזו שמכילה '$') "מחלחלת" לקונטיינר ומתפרשת בטעות ע"י compose.
+# רק פורט ה-host ניתן להחלפה, דרך PG_PORT.
+# ============================================================================
+
+services:
+  db:
+    build: ./db
+    image: examapp-postgres
+    container_name: examapp-pg
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: examapp
+    ports:
+      # host:container — הפורט על ה-host ניתן להחלפה דרך PG_PORT.
+      - "${PG_PORT:-5432}:5432"
+    volumes:
+      - examapp_pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d examapp"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  examapp_pgdata:
