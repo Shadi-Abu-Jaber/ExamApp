@@ -6,7 +6,12 @@
   "main": "src/server.js",
   "scripts": {
     "dev": "nodemon --watch src src/server.js",
-    "start": "node src/server.js"
+    "start": "node src/server.js",
+    "db:up": "docker compose up -d",
+    "db:down": "docker compose down",
+    "db:reset": "docker compose down -v && docker compose up -d",
+    "db:logs": "docker compose logs -f db",
+    "db:test": "node db/connect-test.js"
   },
   "dependencies": {
     "cors": "^2.8.5",
