@@ -1,7 +1,7 @@
 {
   "name": "examapp-server",
   "version": "0.1.0",
-  "description": "ExamApp simple Express + in-memory JSON server",
+  "description": "ExamApp Express API backed by PostgreSQL with JWT authentication",
   "type": "module",
   "main": "src/server.js",
   "scripts": {
@@ -14,9 +14,11 @@
     "db:test": "node db/connect-test.js"
   },
   "dependencies": {
+    "bcryptjs": "^3.0.3",
     "cors": "^2.8.5",
     "dotenv": "^17.4.2",
     "express": "^4.21.2",
+    "jsonwebtoken": "^9.0.3",
     "pg": "^8.21.0"
   },
   "devDependencies": {

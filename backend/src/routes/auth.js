@@ -1,11 +1,14 @@
 // ראוטים לאימות — כניסה והרשמה.
-// השרת לא משתמש ב-JWT בשלב זה — מחזיר את הפרופיל הציבורי (ללא סיסמה),
-// והלקוח שומר אותו ב-localStorage. בעתיד יהיה אפשר להחליף ב-JWT ללא
-// שינוי בלקוח, כי כל הצד-שרת מרוכז בקובץ הזה.
+// שני הראוטים מחזירים { token, user }: הטוקן (JWT) נשלח על ידי הלקוח
+// בכותרת Authorization בכל בקשה מוגנת. הסיסמה נשמרת ומושווית כ-hash
+// (bcrypt) בלבד — לעולם לא בטקסט גלוי.
 
 import { Router } from 'express';
-import { db } from '../db.js';
+import * as usersRepo from '../repositories/usersRepo.js';
 import { httpError } from '../middlewares/errorHandler.js';
+import { hashPassword, verifyPassword } from '../auth/password.js';
+import { signToken } from '../auth/tokens.js';
+import { genId } from '../ids.js';
 
 const router = Router();
 
@@ -17,19 +20,21 @@ function publicProfile(user) {
   return rest;
 }
 
-router.post('/login', (req, res, next) => {
+router.post('/login', async (req, res, next) => {
   try {
     const { email, password } = req.body || {};
     const normalized = (email || '').toLowerCase().trim();
     if (!normalized || !password) throw httpError(400, 'אימייל וסיסמה נדרשים');
 
-    const user = db.findOne('users', u => u.email === normalized && u.password === password);
-    if (!user) throw httpError(401, 'אימייל או סיסמה שגויים');
-    res.json(publicProfile(user));
+    const user = await usersRepo.findByEmail(normalized);
+    if (!user || !(await verifyPassword(password, user.password))) {
+      throw httpError(401, 'אימייל או סיסמה שגויים');
+    }
+    res.json({ token: signToken(user), user: publicProfile(user) });
   } catch (err) { next(err); }
 });
 
-router.post('/register', (req, res, next) => {
+router.post('/register', async (req, res, next) => {
   try {
     const { name, email, password, role } = req.body || {};
     const normalized = (email || '').toLowerCase().trim();
@@ -39,17 +44,18 @@ router.post('/register', (req, res, next) => {
     if (!password || password.length < 6) throw httpError(400, 'סיסמה חייבת להכיל לפחות 6 תווים');
     if (!ROLES.has(role)) throw httpError(400, 'יש לבחור תפקיד');
 
-    if (db.findOne('users', u => u.email === normalized)) {
+    if (await usersRepo.findByEmail(normalized)) {
       throw httpError(409, 'אימייל כבר קיים במערכת');
     }
 
-    const created = db.insert('users', {
+    const created = await usersRepo.insert({
+      id: genId('user'),
       name: name.trim(),
       email: normalized,
-      password,
+      password: await hashPassword(password),
       role,
     });
-    res.status(201).json(publicProfile(created));
+    res.status(201).json({ token: signToken(created), user: publicProfile(created) });
   } catch (err) { next(err); }
 });
 
