@@ -1,7 +1,8 @@
-// הנפקה ואימות של JWT. הטוקן נחתם עם JWT_SECRET מהסביבה; אם לא הוגדר,
-// נופלים לסוד פיתוח לא-בטוח עם אזהרה (כדי לא לחסום הרצה מקומית).
-// ה-payload מכיל מזהה, תפקיד, שם ואימייל — כך ש-authRequired יכול לבנות
-// את req.user בלי שאילתת DB נוספת בכל בקשה.
+// Issuing and verifying JWTs. Tokens are signed with JWT_SECRET from the
+// environment; if it isn't set we fall back to an insecure development secret
+// (with a warning) so local runs aren't blocked. The payload carries the id,
+// role, name and email — so authRequired can build req.user without an extra
+// DB query on every request.
 
 import jwt from 'jsonwebtoken';
 import { logger } from '../logger.js';

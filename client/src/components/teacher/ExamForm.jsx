@@ -1,5 +1,6 @@
-// טופס בחינה גנרי המשמש גם ליצירה וגם לעריכה.
-// אחראי על ולידציה מקומית (כותרת + isValid לכל שאלה) לפני שליחה ל-service.
+// Generic exam form used for both creating and editing.
+// Handles client-side validation (title + isValid on each question) before
+// submitting to the service.
 
 import { useState } from 'react';
 import { Question } from '../../models/Question.js';

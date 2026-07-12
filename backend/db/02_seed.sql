@@ -1,16 +1,17 @@
 -- ============================================================================
--- ExamApp — נתוני זרע (SEED) ל-HYBRID schema.
+-- ExamApp — seed data for the HYBRID schema.
 -- ----------------------------------------------------------------------------
--- שני משתמשי דמו (מורה + תלמיד) ושתי בחינות לדוגמה.
--- שאלות הבחינה נכתבות כ-JSONB inline — כך כל בחינה היא שורה אחת
--- שמחזיקה את כל המבנה שלה ביחד.
+-- Two demo users (teacher + student) and two sample exams.
+-- Exam questions are written inline as JSONB — so each exam is a single row
+-- that holds its whole structure together.
+-- (The Hebrew strings below are demo content, not comments.)
 -- ============================================================================
 
 TRUNCATE submissions, exams, users RESTART IDENTITY CASCADE;
 
 -- ----------------------------------------------------------------------------
 -- USERS
--- הסיסמאות נשמרות כ-bcrypt hashes (לא בטקסט גלוי). ערכי הדמו:
+-- Passwords are stored as bcrypt hashes (not plain text). Demo credentials:
 --   teacher@demo.test / teacher123   ·   student@demo.test / student123
 -- ----------------------------------------------------------------------------
 INSERT INTO users (id, name, email, password, role) VALUES
@@ -18,7 +19,7 @@ INSERT INTO users (id, name, email, password, role) VALUES
   ('u_student_demo', 'תלמיד לדוגמה', 'student@demo.test', '$2b$10$8nb1m0cRmoFhGK3fa/FjL.izkwUVgcYHuc/EuAx/Z9gT7C4WW5BQy', 'student');
 
 -- ----------------------------------------------------------------------------
--- EXAMS — שאלות כ-JSONB
+-- EXAMS — questions as JSONB
 -- ----------------------------------------------------------------------------
 INSERT INTO exams (id, title, description, status, created_by, questions) VALUES
 (
@@ -71,7 +72,7 @@ INSERT INTO exams (id, title, description, status, created_by, questions) VALUES
 );
 
 -- ----------------------------------------------------------------------------
--- אישור: ספירה לפי טבלה.
+-- Confirmation: row count per table.
 -- ----------------------------------------------------------------------------
 SELECT 'users'       AS table_name, COUNT(*) AS rows FROM users
 UNION ALL

@@ -1,5 +1,5 @@
-// ישות הגשה (Submission) — מייצגת בחינה שהוגשה על ידי תלמיד.
-// שומרת את התשובות שניתנו, הציון המספרי שחושב, ואחוז ההצלחה.
+// Submission entity — represents an exam submitted by a student.
+// Stores the given answers, the computed numeric score, and the success rate.
 
 export class Submission {
   constructor({

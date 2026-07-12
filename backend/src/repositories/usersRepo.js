@@ -1,5 +1,5 @@
-// גישה לטבלת users. שומר סיסמה כ-hash (bcrypt) — ראו auth/password.js.
-// המזהה (id) מיוצר בשכבת הראוט (genId) ולא נגזר ב-DB.
+// Access to the `users` table. Passwords are stored as a bcrypt hash — see
+// auth/password.js. The id is generated in the route layer (genId), not by the DB.
 
 import { query } from '../db.js';
 

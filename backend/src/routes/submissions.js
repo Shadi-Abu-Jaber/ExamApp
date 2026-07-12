@@ -1,9 +1,9 @@
-// ראוטים של הגשות.
-// הציון מחושב בשרת ולא בלקוח — כך לא ניתן "לרמות" עם DevTools.
-// כל הראוטים דורשים הזדהות:
-//   POST   — תלמיד בלבד; studentId נלקח מהטוקן (לא מגוף הבקשה).
-//   GET    — תלמיד רואה רק את ההגשות שלו; מורה רואה הגשות של בחינה
-//            שבבעלותו בלבד (examId חובה).
+// Submission routes.
+// The score is computed on the server, not the client — so it can't be "cheated"
+// with DevTools. Every route requires authentication:
+//   POST   — student only; studentId is taken from the token (not the body).
+//   GET    — a student sees only their own submissions; a teacher sees
+//            submissions for an exam they own only (examId required).
 
 import { Router } from 'express';
 import * as submissionsRepo from '../repositories/submissionsRepo.js';
@@ -20,12 +20,12 @@ router.get('/', async (req, res, next) => {
   try {
     const { examId } = req.query;
 
-    // תלמיד — רק ההגשות שלו (studentId נכפה לזהות המחוברת).
+    // student — only their own submissions (studentId forced to the logged-in id).
     if (req.user.role === 'student') {
       return res.json(await submissionsRepo.list({ studentId: req.user.id, examId }));
     }
 
-    // מורה — רק הגשות של בחינה שבבעלותו.
+    // teacher — only submissions for an exam they own.
     if (!examId) throw httpError(400, 'נדרש examId');
     const exam = await examsRepo.findById(examId);
     if (!exam) throw httpError(404, 'הבחינה לא נמצאה');
@@ -51,7 +51,7 @@ router.post('/', requireRole('student'), async (req, res, next) => {
     const created = await submissionsRepo.insert({
       id: genId('sub'),
       examId,
-      studentId: req.user.id, // סמכותי — מתעלמים מ-studentId שהגיע מהלקוח
+      studentId: req.user.id, // authoritative — ignore any studentId from the client
       answers,
       score,
       total: exam.questions.length,

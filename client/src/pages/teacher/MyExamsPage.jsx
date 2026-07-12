@@ -1,6 +1,6 @@
-// רשימת הבחינות של המורה.
-// תומכת בכל מעברי הסטטוס: טיוטה → מפורסם → סגור → טיוטה (לולאת חזרה).
-// פעולת מחיקה מאומתת עם confirm() לפני קריאה ל-service.
+// The teacher's list of exams.
+// Supports every status transition: draft → published → closed → draft (loop).
+// Deletion is confirmed with confirm() before calling the service.
 
 import { useEffect, useState, useCallback } from 'react';
 import { Link } from 'react-router-dom';

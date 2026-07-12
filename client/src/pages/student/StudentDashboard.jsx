@@ -1,5 +1,6 @@
-// דשבורד התלמיד — מציג מספר בחינות זמינות, מספר הגשות וממוצע ציונים.
-// הממוצע מחושב בלקוח על בסיס ההגשות של המשתמש המחובר.
+// Student dashboard — shows the number of available exams, number of
+// submissions, and the average grade. The average is computed on the client
+// from the logged-in user's submissions.
 
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';

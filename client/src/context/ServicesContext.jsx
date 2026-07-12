@@ -1,7 +1,7 @@
-// גשר בין שירותי ה-OOP לבין רכיבי React.
-// ServicesProvider עוטף את העץ ומחזיק את גרף השירותים.
-// useServices() מאפשר לכל רכיב לגשת אליהם בלי לייבא אותם ישירות.
-// useNotifyToasts() ממיר את הזרם של Notify למצב React לתצוגה.
+// Bridge between the OOP services and React components.
+// ServicesProvider wraps the tree and holds the service graph.
+// useServices() lets any component reach them without importing them directly.
+// useNotifyToasts() turns the Notify stream into React state for rendering.
 
 import { createContext, useContext, useEffect, useState } from 'react';
 import { getServices } from '../services/ServiceRegistry.js';

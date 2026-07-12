@@ -1,7 +1,9 @@
-// מידלוורים להזדהות והרשאה בצד השרת.
-// authRequired — קורא "Authorization: Bearer <token>", מאמת, ומצרף
-//   את המשתמש המאומת ל-req.user. דוחה בקשות ללא/עם טוקן פסול ב-401.
-// requireRole — שומר ראוט לתפקידים מסוימים (חייב לרוץ אחרי authRequired).
+// Authentication & authorization middleware.
+// authRequired — reads "Authorization: Bearer <token>", verifies it, and
+//   attaches the authenticated user to req.user. Rejects missing/invalid
+//   tokens with 401.
+// requireRole — restricts a route to specific roles (must run after
+//   authRequired).
 
 import { verifyToken } from '../auth/tokens.js';
 import { httpError } from './errorHandler.js';

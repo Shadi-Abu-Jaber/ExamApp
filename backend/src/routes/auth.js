@@ -1,7 +1,7 @@
-// ראוטים לאימות — כניסה והרשמה.
-// שני הראוטים מחזירים { token, user }: הטוקן (JWT) נשלח על ידי הלקוח
-// בכותרת Authorization בכל בקשה מוגנת. הסיסמה נשמרת ומושווית כ-hash
-// (bcrypt) בלבד — לעולם לא בטקסט גלוי.
+// Authentication routes — login and register.
+// Both routes return { token, user }: the client sends the JWT in the
+// Authorization header on every protected request. The password is only ever
+// stored and compared as a bcrypt hash — never in plain text.
 
 import { Router } from 'express';
 import * as usersRepo from '../repositories/usersRepo.js';
@@ -14,7 +14,7 @@ const router = Router();
 
 const ROLES = new Set(['teacher', 'student']);
 
-// מנקה את הסיסמה לפני החזרת המשתמש ללקוח.
+// Strips the password before returning the user to the client.
 function publicProfile(user) {
   const { password, ...rest } = user;
   return rest;

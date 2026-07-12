@@ -1,5 +1,6 @@
-// הגדרת אפליקציית Express — CORS, JSON, רישום בקשות, ראוטים, וטיפול בשגיאות.
-// CORS מוגדר דרך משתנה סביבה כדי שלא נחשוף את ה-API לדומיינים זרים.
+// Express app setup — CORS, JSON parsing, request logging, routes, error handling.
+// CORS is configured via an environment variable so we don't expose the API to
+// foreign origins.
 
 import express from 'express';
 import cors from 'cors';

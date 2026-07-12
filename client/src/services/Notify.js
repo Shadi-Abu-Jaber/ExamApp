@@ -1,6 +1,6 @@
-// שירות התראות (Notifications) — תבנית פרסום-מנוי (pub/sub).
-// קוד שאינו רכיב React יכול לקרוא ל-push() כדי לשלוח התראה,
-// וה-UI נרשם דרך subscribe() ומציג את ההודעה כ-toast.
+// Notifications service — a publish/subscribe (pub/sub) pattern.
+// Non-React code can call push() to send a notification, and the UI subscribes
+// via subscribe() and renders the message as a toast.
 
 export class Notify {
   constructor({ logger } = {}) {

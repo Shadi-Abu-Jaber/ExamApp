@@ -1,6 +1,8 @@
-// מסד נתונים מדומה (MockDb) — מחליף שרת אמיתי בשלב זה.
-// טבלאות בזיכרון: users, exams, submissions. הכל נשמר ב-Storage
-// כדי שהמצב יישמר בין רענונים. בטעינה ראשונה זורעים נתוני דמו.
+// Mock database (MockDb) — stands in for a real server in mock mode.
+// In-memory tables: users, exams, submissions. Everything is persisted to
+// Storage so state survives reloads. On first load it seeds demo data.
+// (The seed strings below are intentionally in Hebrew — they mirror the demo
+// content of the real database.)
 
 import { Exam, EXAM_STATUS } from '../models/Exam.js';
 import { User, USER_ROLE } from '../models/User.js';
@@ -46,7 +48,7 @@ export class MockDb {
     this._load();
   }
 
-  // טעינה ראשונית: אם יש נתונים שמורים — משחזרים; אחרת זורעים demo.
+  // Initial load: if there's saved data restore it; otherwise seed demo data.
   _load() {
     const saved = this.storage.get('mockdb');
     if (saved && saved.users?.length) {
@@ -103,10 +105,10 @@ export class MockDb {
     const idx = this.tables[table].findIndex(r => r.id === id);
     if (idx === -1) return null;
     const current = this.tables[table][idx];
-    // ה-patch עשוי להגיע עם אובייקטים גולמיים (למשל questions מהטופס) ולא
-    // עם מופעי מודל. מיזוג ובנייה מחדש דרך הקונסטרקטור של השורה שומרים על
-    // המופעים המקוננים (Exam.questions → Question) כך ש-_persist()/toJSON()
-    // לא קורסים עם "q.toJSON is not a function".
+    // The patch may arrive with raw objects (e.g. questions from the form)
+    // rather than model instances. Merging and rebuilding via the row's
+    // constructor preserves the nested instances (Exam.questions → Question) so
+    // _persist()/toJSON() don't crash with "q.toJSON is not a function".
     const Model = current.constructor;
     const merged = { ...(current.toJSON ? current.toJSON() : current), ...patch };
     const next = (Model && Model !== Object) ? new Model(merged) : merged;

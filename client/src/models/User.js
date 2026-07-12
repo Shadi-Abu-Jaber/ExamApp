@@ -1,6 +1,6 @@
-// ישות משתמש (User) — תומכת בשני תפקידים: מורה ותלמיד.
-// publicProfile() מחזירה רק את השדות הבטוחים לחשיפה ב-UI
-// (ללא סיסמה), שימושי במיוחד כשמאחסנים את המשתמש המחובר.
+// User entity — supports two roles: teacher and student.
+// publicProfile() returns only the fields safe to expose in the UI (without the
+// password), which is especially useful when persisting the logged-in user.
 
 export const USER_ROLE = Object.freeze({
   TEACHER: 'teacher',

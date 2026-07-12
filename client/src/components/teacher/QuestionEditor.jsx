@@ -1,6 +1,6 @@
-// עורך שאלה בודדת — טקסט שאלה, אפשרויות, וסימון התשובה הנכונה.
-// מגביל ל-2..6 אפשרויות. עדכון התשובה הנכונה מתעדכן אוטומטית
-// כאשר אפשרות שלפניה נמחקת.
+// Editor for a single question — question text, options, and marking the
+// correct answer. Limited to 2..6 options. The correct-answer index is adjusted
+// automatically when an option before it is removed.
 
 
 export default function QuestionEditor({ index, question, onChange, onRemove }) {

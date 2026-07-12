@@ -1,5 +1,6 @@
-// גישה לטבלת submissions. answers נשמר כ-JSONB (מערך אינדקסי בחירה).
-// submitted_at מומר ל-epoch ms כדי לשמר את חוזה הלקוח (מיון מספרי).
+// Access to the `submissions` table. `answers` is stored as JSONB (an array of
+// chosen option indices). submitted_at is converted to epoch ms to preserve the
+// client contract (numeric sorting).
 
 import { query } from '../db.js';
 

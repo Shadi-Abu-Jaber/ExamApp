@@ -1,19 +1,19 @@
 -- ============================================================================
--- ExamApp — שאילתות הדגמה לסרטון.
+-- ExamApp — demonstration queries.
 -- ----------------------------------------------------------------------------
--- מריצים את הקובץ עם psql -f כדי לראות פלט של כל שאילתה ברצף.
--- כל שאילתה מתועדת עם \echo שמדפיס כותרת כדי שיהיה קל לעקוב בסרטון.
+-- Run this file with psql -f to see the output of each query in sequence.
+-- Each query is labeled with \echo that prints a header so it's easy to follow.
 -- ============================================================================
 
 \echo
 \echo '================================================================'
-\echo '  1) בדיקת חיבוריות — גרסת השרת ושעה נוכחית'
+\echo '  1) Connectivity check — server version and current time'
 \echo '================================================================'
 SELECT version(), NOW() AS server_time;
 
 \echo
 \echo '================================================================'
-\echo '  2) כל המשתמשים (users) במסד'
+\echo '  2) All users in the database'
 \echo '================================================================'
 SELECT id, name, email, role, created_at
 FROM users
@@ -21,7 +21,7 @@ ORDER BY role, name;
 
 \echo
 \echo '================================================================'
-\echo '  3) כל הבחינות (exams) — מטא-דאטה + מספר שאלות'
+\echo '  3) All exams — metadata + question count'
 \echo '================================================================'
 SELECT
   id,
@@ -35,8 +35,8 @@ ORDER BY created_at DESC;
 
 \echo
 \echo '================================================================'
-\echo '  4) שליפת בחינה מסוימת — exam_seed_js — והרצת לולאה'
-\echo '     על השאלות שלה (כל שאלה כאובייקט JSONB נפרד)'
+\echo '  4) Fetch a specific exam — exam_seed_js — and iterate'
+\echo '     over its questions (each question as a separate JSONB object)'
 \echo '================================================================'
 SELECT
   (q->>'id')              AS question_id,
@@ -51,8 +51,8 @@ ORDER BY (q->>'id');
 
 \echo
 \echo '================================================================'
-\echo '  5) שאילתת JSONB מתקדמת — כל הבחינות שיש בהן שאלה'
-\echo '     שמכילה את המילה "closure"'
+\echo '  5) Advanced JSONB query — all exams that have a question'
+\echo '     containing the word "closure"'
 \echo '================================================================'
 SELECT
   e.id,
@@ -64,7 +64,7 @@ WHERE q->>'text' ILIKE '%closure%';
 
 \echo
 \echo '================================================================'
-\echo '  6) סטטיסטיקה: ספירת שאלות סך הכל לפי בחינה'
+\echo '  6) Statistics: total question count per exam'
 \echo '================================================================'
 SELECT
   title,

@@ -16,11 +16,14 @@ Backend (`cd backend`):
 Client (`cd client`):
 - `npm run dev` — Vite dev server at http://localhost:5173.
 - `npm run build` — production build to `client/dist`.
-- `npx eslint .` — lint (flat config in `client/eslint.config.js`; there is no `lint` npm script, and no ESLint setup on the backend).
+- `npm run lint` (or `npx eslint .`) — lint (flat config in `client/eslint.config.js`; no ESLint setup on the backend).
 
-Run both: VS Code task **"dev: both (client + server)"**, or the **Run & Debug** panel (Debug Server / Debug Client / Debug Both) — see `.vscode/tasks.json` + `launch.json`.
+Tests — **Vitest** in both packages:
+- `npm test` in `backend/` (unit tests for password/JWT/id helpers) and in `client/` (models, services, ApiGateway). Tests live in `backend/tests/` and `client/tests/`.
+- `npm test` from the repo root runs both. Run a single test file with `npx vitest run <path>` (or `npx vitest` to watch).
+- `backend/db/connect-test.js` (`npm run db:test`) is a DB-connectivity smoke test. Beyond the unit tests, verify UI/behavior changes by running the app.
 
-There is **no automated test suite** (no test framework/test files). Verify changes by running the app; `backend/db/connect-test.js` is the closest thing to a DB smoke test.
+Run both dev servers: VS Code task **"dev: both (client + server)"**, or the **Run & Debug** panel (Debug Server / Debug Client / Debug Both) — see `.vscode/tasks.json` + `launch.json`.
 
 Demo logins: `teacher@demo.test` / `teacher123`, `student@demo.test` / `student123`.
 

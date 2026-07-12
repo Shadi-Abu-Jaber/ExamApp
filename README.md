@@ -98,13 +98,13 @@ You can also start both from the repo root: `npm run install:all`, then `npm run
 
 ## Scripts
 
-Root (delegates to sub-projects): `install:all`, `dev:server`, `dev:client`, `build`, `db:up`, `db:down`.
+Root (delegates to sub-projects): `install:all`, `dev:server`, `dev:client`, `build`, `db:up`, `db:down`, `test` (runs both suites).
 
-Backend (`backend/`): `dev`, `start`, `db:up`, `db:down`, `db:reset`, `db:logs`, `db:test`.
+Backend (`backend/`): `dev`, `start`, `test`, `db:up`, `db:down`, `db:reset`, `db:logs`, `db:test`.
 
-Client (`client/`): `dev`, `build`; lint with `npx eslint .`.
+Client (`client/`): `dev`, `build`, `preview`, `lint`, `test`.
 
-There is no automated test suite yet; `backend/db/connect-test.js` (`npm run db:test`) is a DB connectivity smoke test.
+Tests use **Vitest** (`backend/tests/`, `client/tests/`) — run `npm test` in either package, or from the repo root to run both. `backend/db/connect-test.js` (`npm run db:test`) is a DB-connectivity smoke test.
 
 ## Project structure
 

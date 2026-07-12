@@ -1,6 +1,6 @@
-// שירות לוגים פשוט בצד השרת.
-// מטרתו לייצר זרם לוגים נפרד ומזוהה (server:*) שיופיע בטרמינל של השרת
-// ולא יתערבב עם הלוגים של הלקוח. תומך ברמות ובתחילית נפרדת לכל מודול.
+// A small server-side logger. It produces an identifiable log stream
+// (`server:*`) so server output is easy to spot and doesn't get confused with
+// client logs. Supports levels and a per-module prefix via child().
 
 const LEVELS = { debug: 10, info: 20, warn: 30, error: 40, silent: 99 };
 

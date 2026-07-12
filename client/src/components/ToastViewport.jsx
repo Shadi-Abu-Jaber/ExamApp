@@ -1,5 +1,5 @@
-// אזור תצוגת ה-toast-ים — מאזין ל-Notify ומציג התראות מרחפות.
-// יושב גבוה ב-DOM כדי שיהיה גלוי מעל כל שאר התוכן.
+// Toast display area — subscribes to Notify and renders floating alerts.
+// Sits high in the DOM so it's visible above all other content.
 
 import { useNotifyToasts } from '../context/ServicesContext.jsx';
 

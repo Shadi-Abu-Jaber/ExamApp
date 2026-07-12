@@ -1,6 +1,7 @@
-// נקודת ההפעלה של האפליקציה.
-// סדר הפעולות: יצירת שירותים → עטיפה ב-HashRouter (תואם gh-pages) →
-// רינדור של רכיב השורש <App />. StrictMode עוזר לאתר בעיות בפיתוח.
+// Application entry point.
+// Order of operations: bootstrap the services → wrap in HashRouter (works on
+// static hosts without server-side rewrites) → render the root <App />.
+// StrictMode helps surface problems during development.
 
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';

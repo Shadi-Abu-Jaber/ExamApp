@@ -1,5 +1,5 @@
-// דשבורד המורה — מציג סטטיסטיקה מהירה של הבחינות שלו וקישורי פעולה.
-// טוען רק את הבחינות של המורה המחובר (לא של מורים אחרים).
+// Teacher dashboard — shows quick statistics of their exams and action links.
+// Loads only the logged-in teacher's exams (not other teachers').
 
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';

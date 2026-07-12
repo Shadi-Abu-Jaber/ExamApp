@@ -1,8 +1,9 @@
-// רישום שירותים מרכזי (Service Registry).
-// אחראי על יצירת כל השירותים בסדר הנכון של תלויות:
+// Central service registry.
+// Responsible for creating all services in the correct dependency order:
 // Config → Logger → Storage → Notify → MockDb → ApiGateway →
 // ExamService/SubmissionService/AuthService.
-// נשמר instance יחיד כדי שכל האפליקציה תעבוד מול אותם מופעים (singleton).
+// A single instance is kept so the whole app works against the same instances
+// (singleton).
 
 import { Logger } from './Logger.js';
 import { Config } from './Config.js';
@@ -15,8 +16,8 @@ import { AuthService } from './AuthService.js';
 
 let instance = null;
 
-// קורא משתני סביבה של Vite (VITE_DATA_MODE, VITE_SERVER_BASE_URL)
-// כדי לאפשר שינוי מצב מבלי לערוך קוד — דרך client/.env.
+// Reads Vite env vars (VITE_DATA_MODE, VITE_SERVER_BASE_URL) to allow changing
+// the mode without editing code — via client/.env.
 function readEnvOverrides() {
   // Vite injects values prefixed with VITE_ at build time / dev start.
   const env = (typeof import.meta !== 'undefined' && import.meta.env) || {};
@@ -26,8 +27,6 @@ function readEnvOverrides() {
   return overrides;
 }
 
-// מאפשר למפתחים להחליף מצב mock/http בזמן ריצה דרך DevTools, בלי build:
-//   localStorage.setItem('examapp::dataMode', 'http')
 function readLocalStorageOverride(prefix) {
   // Lets a developer flip modes at runtime from DevTools, e.g.:
   //   localStorage.setItem('examapp::dataMode', 'http')
@@ -38,7 +37,7 @@ function readLocalStorageOverride(prefix) {
   return {};
 }
 
-// יוצר את גרף השירותים פעם אחת ומחזיר אותו בכל קריאה נוספת.
+// Builds the service graph once and returns it on every subsequent call.
 export function bootstrapServices(overrides = {}) {
   if (instance) return instance;
 

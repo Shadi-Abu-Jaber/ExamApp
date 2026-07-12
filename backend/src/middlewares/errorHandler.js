@@ -1,6 +1,7 @@
-// מידלוורים לטיפול בשגיאות ובנתיבים לא קיימים.
-// httpError(status, msg) הוא helper שמייצר Error עם קוד סטטוס, כדי
-// שראוטים יוכלו לזרוק שגיאה ברורה והמידלוור יחזיר אותה ללקוח.
+// Middleware for handling errors and unknown routes.
+// httpError(status, msg) is a helper that builds an Error carrying a status
+// code, so routes can throw a clear error and this middleware returns it to
+// the client.
 
 import { logger } from '../logger.js';
 

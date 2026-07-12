@@ -1,6 +1,6 @@
-// עמוד עריכת בחינה.
-// טוען את הבחינה לפי המזהה, מאפשר עריכה של כל השדות ושינוי סטטוס
-// (טיוטה / מפורסם / סגור) מתוך כפתורים בכותרת.
+// Exam editing page.
+// Loads the exam by id, allows editing all fields, and changing the status
+// (draft / published / closed) via buttons in the header.
 
 import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';

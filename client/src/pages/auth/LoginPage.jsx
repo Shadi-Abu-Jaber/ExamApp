@@ -1,6 +1,7 @@
-// עמוד התחברות.
-// מקבל אימייל וסיסמה, קורא ל-AuthContext.login, ובהצלחה מנווט
-// לדשבורד לפי התפקיד (מורה / תלמיד). כולל רמז לחשבונות דמו.
+// Login page.
+// Takes an email and password, calls AuthContext.login, and on success
+// navigates to the dashboard by role (teacher / student). Includes a hint with
+// the demo accounts.
 
 import { useState } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';

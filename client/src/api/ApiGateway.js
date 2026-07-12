@@ -5,20 +5,14 @@
 // React components do not import this class — they keep using
 // ExamService / SubmissionService / AuthService, which now delegate here.
 
-// שער ה-API היחיד של הלקוח.
-// כל פעולה (התחברות, הרשמה, בחינות, הגשות) עוברת דרך המחלקה הזו.
-// בפנים, המחלקה בודקת את Config.dataMode ומחליטה אם לדבר עם השרת
-// (http) או להישאר עם המסד המקומי בזיכרון (mock). הרכיבים והשירותים
-// אינם רואים את ההבדל — אותה תשובה חוזרת מאותה חתימה.
-
-// כשעובדים מול MockDb צריך להכניס *מופע של מודל* ולא אובייקט גולמי —
-// אחרת אין id (המזהה נוצר בקונסטרקטור) וגם _persist() קורס כי הוא
-// קורא ל-row.toJSON() על כל שורה בטבלה.
+// When working with MockDb you must insert a *model instance*, not a raw object
+// — otherwise there's no id (it's generated in the constructor) and _persist()
+// crashes because it calls row.toJSON() on every row in the table.
 import { Exam } from '../models/Exam.js';
 import { User } from '../models/User.js';
 import { Submission } from '../models/Submission.js';
 
-// כלי עזר קטן: ממתין X מילישניות כדי לדמות השהיית רשת במצב mock.
+// Small helper: waits X milliseconds to simulate network latency in mock mode.
 function delay(ms) { return new Promise(r => setTimeout(r, ms)); }
 
 export class ApiGateway {
@@ -26,19 +20,20 @@ export class ApiGateway {
     this.config = config;
     this.mockDb = mockDb;
     this.logger = logger?.child('api');
-    // טוקן ה-JWT למצב http. נשמר/משוחזר על ידי AuthService (localStorage)
-    // ונשלח בכותרת Authorization בכל בקשה. במצב mock נשאר null.
+    // The JWT for http mode. Saved/restored by AuthService (localStorage) and
+    // sent in the Authorization header on every request. Stays null in mock mode.
     this._token = null;
   }
 
-  // מוגדר על ידי AuthService בכניסה/הרשמה ובעליית האפליקציה (rehydrate).
+  // Set by AuthService on login/register and on app startup (rehydrate).
   setToken(token) { this._token = token || null; }
 
   get mode() { return this.config.get('dataMode'); }
   get baseUrl() { return this.config.get('serverBaseUrl'); }
 
-  // מתודה פנימית — עוטפת fetch עם base URL, סדרת JSON, וטיפול בשגיאות.
-  // מכאן יוצאת כל קריאה לשרת — כך לוגיקת הרשת מרוכזת במקום אחד.
+  // Internal method — wraps fetch with the base URL, JSON serialization, and
+  // error handling. Every server call goes through here, so the network logic
+  // lives in one place.
   async _http(path, { method = 'GET', body, query } = {}) {
     const qs = query
       ? '?' + Object.entries(query)
@@ -73,8 +68,8 @@ export class ApiGateway {
   //  AUTH
   // ────────────────────────────────────────────────────────────────────
 
-  // מחזיר תמיד { user, token } בשני המצבים — במצב mock אין טוקן (null),
-  // כך ש-AuthService מטפל בשניהם באותו קוד.
+  // Always returns { user, token } in both modes — in mock mode there's no token
+  // (null), so AuthService can handle both with the same code.
   async login(email, password) {
     if (this.mode === 'http') {
       const data = await this._http('/auth/login', { method: 'POST', body: { email, password } });

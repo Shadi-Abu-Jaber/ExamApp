@@ -1,6 +1,6 @@
-// עמוד הרשמה.
-// מקבל שם, אימייל, סיסמה ותפקיד; קורא ל-AuthContext.register,
-// ובהצלחה מתחבר אוטומטית ומנווט לדשבורד המתאים לתפקיד.
+// Registration page.
+// Takes a name, email, password and role; calls AuthContext.register, and on
+// success logs in automatically and navigates to the dashboard for the role.
 
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';

@@ -1,6 +1,7 @@
-// ישות שאלה (Question) — שאלת אמריקאית בודדת.
-// מכילה טקסט, מערך אפשרויות ואינדקס של התשובה הנכונה.
-// isValid() מרכז את כללי התקינות במקום אחד במקום לפזר אותם בקוד ה-UI.
+// Question entity — a single multiple-choice question.
+// Holds the text, an array of options, and the index of the correct answer.
+// isValid() keeps the validation rules in one place instead of scattering them
+// across the UI code.
 
 export class Question {
   constructor({ id, text = '', options = ['', '', '', ''], correctAnswer = 0 } = {}) {

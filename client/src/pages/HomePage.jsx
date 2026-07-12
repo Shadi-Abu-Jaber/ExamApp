@@ -1,5 +1,6 @@
-// עמוד הבית — נקודת הכניסה הראשית של האפליקציה.
-// מציג כרטיסים נפרדים למורים ולתלמידים; הקישור מתעדכן לפי מצב ההתחברות.
+// Home page — the app's main entry point.
+// Shows separate cards for teachers and students; the link updates based on the
+// auth state.
 
 import { Link } from 'react-router-dom';
 import { useServices } from '../context/ServicesContext.jsx';

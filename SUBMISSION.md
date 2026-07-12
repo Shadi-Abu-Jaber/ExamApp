@@ -269,7 +269,7 @@ Fixes and chores followed the same flow (e.g. `fixbug/notify-detached-method-on-
 - **Configuration:** environment-driven. Backend reads `DATABASE_URL` (managed PG, TLS) or discrete `PG_*` (local); plus `JWT_SECRET`, `CORS_ORIGIN`, `PORT` — see [backend/.env.example](backend/.env.example). The client's data mode is `VITE_DATA_MODE` (`mock`/`http`) + `VITE_SERVER_BASE_URL`.
 - **Docker:** local PostgreSQL runs in Docker (image + compose with a named volume + healthcheck); the DB seeds itself on first start. Guide: [backend/db/DOCKER.md](backend/db/DOCKER.md).
 - **Deployment (CI/CD):** Render **auto-deploys from `main`** — a static site (frontend), a web service (API), and a managed PostgreSQL. Pushing to `main` redeploys.
-- **Tests:** there is **no automated unit-test suite**; verification is done by running the app end-to-end. `backend/db/connect-test.js` (`npm run db:test`) is a DB-connectivity smoke test that also demonstrates JSONB queries.
+- **Tests:** **Vitest** unit tests in both packages (19 tests) — backend: bcrypt hashing, JWT sign/verify, id generation (`backend/tests/`); client: model rules, service delegation, `AuthService` token handling, `ApiGateway` mock/http (`client/tests/`). Run with `npm test` in each package, or `npm test` from the repo root for both. `backend/db/connect-test.js` (`npm run db:test`) is an additional DB-connectivity smoke test that also demonstrates JSONB queries.
 - **Logging:** a small level-aware logger on both sides — `backend/src/logger.js` (prefixed `server:*` streams) and the client `Logger` service (with `child()` prefixes), used across services and HTTP handlers.
 - **Linting:** ESLint flat config on the client (`npm run lint`).
 

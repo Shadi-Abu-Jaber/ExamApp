@@ -1,6 +1,6 @@
-// Context שמייצג את מצב ההזדהות לרכיבי React.
-// עוטף את AuthService ושומר את המשתמש המחובר ב-state כך שכל הרכיבים
-// מתעדכנים אוטומטית כשמתחברים/יוצאים.
+// React context that represents the authentication state.
+// Wraps AuthService and holds the logged-in user in state, so every component
+// updates automatically on login/logout.
 
 import { createContext, useContext, useState, useCallback } from 'react';
 import { useServices } from './ServicesContext.jsx';

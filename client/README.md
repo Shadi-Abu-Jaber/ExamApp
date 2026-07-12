@@ -10,6 +10,7 @@ npm run dev       # Vite dev server at http://localhost:5173
 npm run build     # production build → dist/
 npm run preview   # serve the production build locally
 npm run lint      # ESLint (flat config in eslint.config.js)
+npm test          # Vitest unit tests (tests/)
 ```
 
 ## Data mode (mock vs. HTTP)

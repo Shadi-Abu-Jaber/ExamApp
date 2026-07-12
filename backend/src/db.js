@@ -1,11 +1,11 @@
 // PostgreSQL connection pool + a tiny query helper.
-// מחליף את ה-store שהיה בזיכרון: כל ראוט קורא/כותב עכשיו לבסיס נתונים
-// אמיתי, כך שהמידע שורד אתחול מחדש של השרת (persistence).
+// Replaces the former in-memory store: every route now reads/writes a real
+// database, so data survives server restarts (persistence).
 //
-// שתי דרכי חיבור:
-//   • DATABASE_URL — מחרוזת חיבור אחת (Render/מנוהל בענן). דורש TLS.
-//   • PG_* — משתנים נפרדים (Docker/native לוקאלי, ללא TLS).
-// אם DATABASE_URL מוגדר הוא מנצח; אחרת נופלים ל-PG_* עם ברירות מחדל.
+// Two ways to connect:
+//   • DATABASE_URL — a single connection string (Render / managed cloud). TLS required.
+//   • PG_* — discrete variables (local Docker / native, no TLS).
+// If DATABASE_URL is set it wins; otherwise we fall back to PG_* with defaults.
 
 import pg from 'pg';
 import { logger } from './logger.js';
@@ -15,9 +15,9 @@ const log = logger.child('db');
 const poolConfig = process.env.DATABASE_URL
   ? {
       connectionString: process.env.DATABASE_URL,
-      // Postgres מנוהל (Render וכו') מחייב TLS, אבל שרשרת האישורים אינה
-      // ב-trust store של הקונטיינר — לכן לא דוחים אותה. DATABASE_SSL=false
-      // רק לשרת לוקאלי ללא TLS.
+      // Managed Postgres (Render, etc.) requires TLS, but its certificate chain
+      // isn't in the container's trust store — so don't reject it. Set
+      // DATABASE_SSL=false only for a local server without TLS.
       ssl: process.env.DATABASE_SSL === 'false' ? false : { rejectUnauthorized: false },
       max: Number(process.env.PG_POOL_MAX) || 10,
     }
@@ -32,18 +32,18 @@ const poolConfig = process.env.DATABASE_URL
 
 const pool = new pg.Pool(poolConfig);
 
-// שגיאה על client שממתין בבריכה (למשל אם ה-DB עשה restart) לא צריכה
-// להפיל את התהליך — רק לרשום ללוג.
+// An error on an idle pooled client (e.g. the DB restarted) must not crash the
+// process — just log it.
 pool.on('error', (err) => log.error('idle client error', err.message));
 
-// עטיפה דקה כדי שהריפוזיטוריז לא ייבאו את ה-pool ישירות, ויש לנו מקום
-// אחד לתיעוד/מעקב SQL בעתיד.
+// Thin wrapper so repositories don't import the pool directly, giving us one
+// place to trace/instrument SQL later.
 export function query(text, params) {
   return pool.query(text, params);
 }
 
-// בדיקת חיבוריות בעליית השרת — כדי להיכשל מהר עם הודעה ברורה במקום
-// לקרוס בבקשה הראשונה.
+// Connectivity check at startup — so we fail fast with a clear message instead
+// of erroring on the first request.
 export async function ping() {
   const res = await pool.query('SELECT 1 AS ok');
   return res.rows[0].ok === 1;

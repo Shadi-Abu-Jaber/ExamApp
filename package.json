@@ -9,7 +9,8 @@
     "dev:client": "npm --prefix client run dev",
     "build": "npm --prefix client run build",
     "db:up": "npm --prefix backend run db:up",
-    "db:down": "npm --prefix backend run db:down"
+    "db:down": "npm --prefix backend run db:down",
+    "test": "npm --prefix backend test && npm --prefix client test"
   },
   "engines": {
     "node": ">=18"

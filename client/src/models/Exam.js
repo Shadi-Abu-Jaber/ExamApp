@@ -1,6 +1,6 @@
-// ישות בחינה (Exam) — אוסף שאלות עם סטטוס ניהולי.
-// סטטוסים אפשריים: טיוטה (draft), מפורסם (published), סגור (closed).
-// מתודות כמו publish/close מכילות את כללי המעבר בין הסטטוסים.
+// Exam entity — a set of questions with a workflow status.
+// Possible statuses: draft, published, closed.
+// Methods like publish()/close() encapsulate the status-transition rules.
 
 import { Question } from './Question.js';
 

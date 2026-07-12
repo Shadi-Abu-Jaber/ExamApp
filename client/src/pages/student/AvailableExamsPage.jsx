@@ -1,6 +1,6 @@
-// רשימת הבחינות הזמינות לתלמיד.
-// מציגה רק בחינות בסטטוס "מפורסם", ומסמנת בחינות שכבר הוגשו על ידי
-// המשתמש כדי שיוכל להבחין בקלות (אפשר להיבחן שוב).
+// List of exams available to a student.
+// Shows only "published" exams, and marks exams the user has already submitted
+// so they're easy to spot (retaking is allowed).
 
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';

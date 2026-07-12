@@ -1,6 +1,7 @@
-// רכיב שומר נתיב (Protected Route).
-// מפנה לדף ההתחברות כשאין משתמש, ולעמוד הבית כשהתפקיד לא תואם —
-// כך מונעים תלמיד מלהיכנס לאזור המורה ולהפך.
+// Protected Route component.
+// Redirects to the login page when there's no user, and to the home page when
+// the role doesn't match — this prevents a student from entering the teacher
+// area and vice versa.
 
 import { Navigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext.jsx';

@@ -3,11 +3,6 @@
 // only orchestrates: invoke the gateway, persist the public profile via
 // Storage, and surface success/failure toasts via Notify.
 
-// שירות אימות (גרסת P3).
-// כל הוולידציה ובדיקת הסיסמה עברו אל ApiGateway — כך אותו קוד
-// שירות תקף גם במצב mock וגם כשהשרת אמיתי מגיב.
-// השירות עצמו רק שומר את הפרופיל ב-Storage ומציג toast הצלחה.
-
 const CURRENT_USER_KEY = 'current_user';
 const TOKEN_KEY = 'auth_token';
 
@@ -17,8 +12,8 @@ export class AuthService {
     this.storage = storage;
     this.notify = notify;
     this.logger = logger?.child('auth');
-    // שחזור טוקן קיים בעליית האפליקציה — כדי שבקשות http יישארו מאומתות
-    // אחרי רענון דף. במצב mock אין טוקן ולכן אין מה לשחזר.
+    // Rehydrate an existing token on app startup — so http requests stay
+    // authenticated across a page reload. In mock mode there's no token to restore.
     const savedToken = this.storage.get(TOKEN_KEY);
     if (savedToken) this.gateway.setToken?.(savedToken);
   }
@@ -27,8 +22,8 @@ export class AuthService {
     return this.storage.get(CURRENT_USER_KEY);
   }
 
-  // שומר את הפרופיל, ואם התקבל טוקן (מצב http) — שומר אותו ומגדיר אותו
-  // ב-gateway כך שכל בקשה הבאה תישלח עם Authorization.
+  // Persist the profile, and if a token was returned (http mode) store it and
+  // set it on the gateway so every subsequent request carries Authorization.
   _persistSession(user, token) {
     this.storage.set(CURRENT_USER_KEY, user);
     if (token) {

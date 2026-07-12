@@ -1,8 +1,8 @@
-// שירות אחסון (Storage) — עטיפה דקה סביב localStorage.
-// יתרונות העטיפה:
-//   1. תחילית (prefix) — מונעת התנגשות עם נתונים של אפליקציות אחרות.
-//   2. JSON אוטומטי בקריאה וכתיבה.
-//   3. גיבוי בזיכרון (Map) במקרים שבהם localStorage לא זמין.
+// Storage service — a thin wrapper around localStorage.
+// Benefits of the wrapper:
+//   1. A prefix — prevents collisions with other apps' data.
+//   2. Automatic JSON on read and write.
+//   3. An in-memory fallback (Map) for when localStorage is unavailable.
 
 export class Storage {
   constructor({ prefix = 'app', logger } = {}) {
@@ -11,8 +11,8 @@ export class Storage {
     this.available = this._probe();
   }
 
-  // בודק אם localStorage זמין בסביבת הריצה (למשל במצב פרטיות).
-  // אם לא — עוברים לאחסון בזיכרון (לא נשמר בין רענונים).
+  // Checks whether localStorage is available in the runtime (e.g. private mode).
+  // If not, fall back to in-memory storage (not persisted across reloads).
   _probe() {
     try {
       const k = `${this.prefix}::__probe__`;

@@ -1,5 +1,5 @@
-// ראוטים של משתמשים (קריאה בלבד). דורשים הזדהות, ומחזירים פרופיל
-// ציבורי ללא סיסמה.
+// User routes (read-only). They require authentication and return a public
+// profile without the password.
 
 import { Router } from 'express';
 import * as usersRepo from '../repositories/usersRepo.js';

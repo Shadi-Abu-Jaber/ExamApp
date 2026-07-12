@@ -1,5 +1,5 @@
-// גיבוב סיסמאות (bcrypt). סיסמאות לא נשמרות ולא מושוות בטקסט גלוי —
-// register מגבב, login משווה מול ה-hash.
+// Password hashing (bcrypt). Passwords are never stored or compared in plain
+// text — register() hashes, login() compares against the stored hash.
 
 import bcrypt from 'bcryptjs';
 

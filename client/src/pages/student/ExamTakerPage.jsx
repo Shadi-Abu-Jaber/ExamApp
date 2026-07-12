@@ -1,7 +1,8 @@
-// עמוד מילוי הבחינה.
-// מציג שאלה אחר שאלה עם רדיו לאפשרויות וסרגל התקדמות.
-// כפתור ההגשה נחסם עד שכל השאלות נענו. הציון מחושב בשירות (לא בלקוח)
-// ומוצג מיד עם תווית עבר/נכשל לפי ציון המעבר מ-Config.
+// Exam-taking page.
+// Shows one question at a time with radio options and a progress bar.
+// The submit button is disabled until every question is answered. The score is
+// computed by the service (not the client) and shown immediately with a
+// pass/fail label based on the passing grade from Config.
 
 import { useEffect, useState } from 'react';
 import { useNavigate, useParams, Link } from 'react-router-dom';
@@ -65,9 +66,9 @@ export default function ExamTakerPage() {
       setResult(submission);
       const pct = submission.total ? Math.round((submission.score / submission.total) * 100) : 0;
       const passed = pct >= config.get('passingGrade');
-      // נקרא כמתודה על notify כדי לשמור על this — קריאה דרך
-      // (passed ? notify.success : notify.warn)(...) מנתקת את ה-binding
-      // ו-this.push קורס עם "Cannot read properties of undefined".
+      // Called as a method on notify to preserve `this` — calling via
+      // (passed ? notify.success : notify.warn)(...) would detach the binding
+      // and this.push would crash with "Cannot read properties of undefined".
       const msg = `ציון: ${pct}%`;
       if (passed) notify.success(msg); else notify.warn(msg);
     } catch (err) {

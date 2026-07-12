@@ -5,12 +5,6 @@
 // React components do not change — they keep calling these services
 // through the ServicesContext.
 
-// שירותי הבחינות וההגשות.
-// אחרי שינוי P3-M2, השירותים הם רק "מתאמים דקים" מעל ApiGateway:
-// מחזיקים את הצד-לוגיקה (כמו logger.info בעת יצירת בחינה) אבל לא
-// ניגשים יותר ישירות ל-MockDb. כך, מצב mock ו-http חולקים את אותו
-// קוד שירות.
-
 export class ExamService {
   constructor({ gateway, logger }) {
     this.gateway = gateway;

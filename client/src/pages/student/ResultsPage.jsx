@@ -1,6 +1,6 @@
-// טבלת התוצאות של התלמיד.
-// טוענת את ההגשות, ולכל הגשה מבקשת את שם הבחינה (במקביל) כדי להציג
-// טבלה אחת קריאה. ממוינת מהחדש לישן.
+// The student's results table.
+// Loads the submissions and, for each one, fetches the exam title (in parallel)
+// to render a single readable table. Sorted newest-first.
 
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';

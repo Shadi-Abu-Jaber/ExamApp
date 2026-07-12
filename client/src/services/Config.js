@@ -1,6 +1,6 @@
-// שירות תצורה (Configuration) מרכזי לאפליקציה.
-// נשמרים כאן ערכי ברירת מחדל שמשמשים את שאר השירותים והרכיבים,
-// כך שאפשר לשנות התנהגות גלובלית במקום אחד בלבד.
+// Central application configuration service.
+// Holds the default values used by the other services and components, so global
+// behavior can be changed in a single place.
 
 const DEFAULTS = Object.freeze({
   appName: 'מערכת בחינות אלקטרונית',

@@ -1,8 +1,9 @@
-// ראוטים של בחינות — CRUD + שינוי סטטוס.
-// כל הראוטים דורשים הזדהות (authRequired). פעולות שינוי דורשות תפקיד
-// 'teacher' וגם בעלות על הבחינה (createdBy === המשתמש המחובר), כדי
-// שמורה לא יוכל לערוך/למחוק בחינות של מורה אחר. createdBy נלקח מהטוקן
-// ולא מגוף הבקשה — הלקוח לא יכול "להתחזות" ליוצר אחר.
+// Exam routes — CRUD + status changes.
+// Every route requires authentication (authRequired). Mutations require the
+// 'teacher' role AND ownership of the exam (createdBy === the logged-in user),
+// so a teacher can't edit/delete another teacher's exams. createdBy is taken
+// from the token, not the request body — the client can't impersonate another
+// creator.
 
 import { Router } from 'express';
 import * as examsRepo from '../repositories/examsRepo.js';
@@ -14,7 +15,7 @@ const router = Router();
 
 const STATUS = new Set(['draft', 'published', 'closed']);
 
-// בודק שהשאלה כוללת טקסט, 2..6 אפשרויות, ותשובה נכונה בטווח תקין.
+// Checks that a question has text, 2..6 options, and a correct answer in range.
 function isValidQuestion(q) {
   return (
     q &&
@@ -25,7 +26,7 @@ function isValidQuestion(q) {
   );
 }
 
-// טוען בחינה ומוודא שהמשתמש המחובר הוא הבעלים. משמש כל ראוט משנה.
+// Loads an exam and asserts the logged-in user owns it. Used by every mutation.
 async function loadOwnedExam(req) {
   const exam = await examsRepo.findById(req.params.id);
   if (!exam) throw httpError(404, 'הבחינה לא נמצאה');
@@ -64,7 +65,7 @@ router.post('/', requireRole('teacher'), async (req, res, next) => {
       title: title.trim(),
       description,
       status: 'draft',
-      createdBy: req.user.id, // סמכותי — מתעלמים מכל createdBy שהגיע מהלקוח
+      createdBy: req.user.id, // authoritative — ignore any createdBy from the client
       questions,
     });
     res.status(201).json(created);

@@ -1,12 +1,12 @@
 -- ============================================================================
--- ExamApp — סכמת בסיס נתונים (HYBRID: relational + JSONB)
+-- ExamApp — database schema (HYBRID: relational + JSONB)
 -- ============================================================================
--- כל ישות מטא-דאטה (id, title, status, ...) יושבת בעמודות "רגילות"
--- כדי לתת לנו אינדקסים מהירים ושאילתות SQL פשוטות.
--- שאלות הבחינה נשמרות בעמודת JSONB אחת ("questions") — כל שאלה היא
--- אובייקט { id, text, options[], correctAnswer }. כך אנחנו לא צריכים
--- טבלת questions+options נפרדת, אבל עדיין יכולים לעבור עליהן ב-SQL
--- (jsonb_array_elements) ובקוד.
+-- Every metadata field (id, title, status, ...) lives in "regular" columns so
+-- we get fast indexes and simple SQL queries.
+-- Exam questions are stored in a single JSONB column ("questions") — each
+-- question is an object { id, text, options[], correctAnswer }. This way we
+-- don't need a separate questions+options table, but we can still iterate over
+-- them in SQL (jsonb_array_elements) and in code.
 -- ============================================================================
 
 DROP TABLE IF EXISTS submissions CASCADE;
@@ -14,7 +14,7 @@ DROP TABLE IF EXISTS exams CASCADE;
 DROP TABLE IF EXISTS users CASCADE;
 
 -- ----------------------------------------------------------------------------
--- USERS — תפקיד teacher או student.
+-- USERS — role is either teacher or student.
 -- ----------------------------------------------------------------------------
 CREATE TABLE users (
   id          TEXT PRIMARY KEY,
@@ -26,7 +26,7 @@ CREATE TABLE users (
 );
 
 -- ----------------------------------------------------------------------------
--- EXAMS — HYBRID: מטא-דאטה בעמודות + השאלות כ-JSONB.
+-- EXAMS — HYBRID: metadata in columns + the questions as JSONB.
 -- ----------------------------------------------------------------------------
 CREATE TABLE exams (
   id           TEXT PRIMARY KEY,
@@ -38,12 +38,12 @@ CREATE TABLE exams (
   questions    JSONB       NOT NULL DEFAULT '[]'::jsonb
 );
 
--- אינדקס GIN על questions מאפשר חיפוש מהיר בתוך ה-JSONB
--- (לדוגמה: כל הבחינות שיש בהן שאלה עם טקסט מסוים).
+-- A GIN index on questions enables fast search inside the JSONB
+-- (e.g. all exams that contain a question with certain text).
 CREATE INDEX idx_exams_questions_gin ON exams USING GIN (questions);
 
 -- ----------------------------------------------------------------------------
--- SUBMISSIONS — answers כ-JSONB array של אינדקסי בחירות.
+-- SUBMISSIONS — answers as a JSONB array of chosen option indices.
 -- ----------------------------------------------------------------------------
 CREATE TABLE submissions (
   id            TEXT PRIMARY KEY,
@@ -59,7 +59,7 @@ CREATE INDEX idx_submissions_exam   ON submissions (exam_id);
 CREATE INDEX idx_submissions_student ON submissions (student_id);
 
 -- ----------------------------------------------------------------------------
--- תצוגת אימות שהסכמה נוצרה.
+-- Verification: show that the schema was created.
 -- ----------------------------------------------------------------------------
 SELECT table_name, table_type
 FROM information_schema.tables

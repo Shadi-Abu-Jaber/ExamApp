@@ -1,6 +1,7 @@
-// קומפוננטת השורש של האפליקציה.
-// אחראית על: הספקת השירותים לעץ הרכיבים, הצגת תפריט הניווט והוטסטים,
-// וניתוב בין העמודים השונים. מצב המשתמש מנוהל ב-AuthContext.
+// Root application component.
+// Responsible for: providing the services to the component tree, rendering the
+// navigation menu and toasts, and routing between the pages. User state is
+// managed in AuthContext.
 
 import { Routes, Route, Navigate } from 'react-router-dom';
 import NavigationMenu from './components/NavigationMenu.jsx';

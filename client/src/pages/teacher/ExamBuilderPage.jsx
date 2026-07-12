@@ -1,5 +1,6 @@
-// עמוד יצירת בחינה חדשה.
-// בחינות חדשות נשמרות תמיד כטיוטה — הפרסום הוא פעולה נפרדת בעמוד העריכה.
+// New-exam creation page.
+// New exams are always saved as a draft — publishing is a separate action on
+// the edit page.
 
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';

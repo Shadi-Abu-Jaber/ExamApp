@@ -1,6 +1,7 @@
-// גישה לטבלת exams (HYBRID: מטא-דאטה בעמודות + questions כ-JSONB).
-// עמודות snake_case ממופות ל-camelCase (createdBy/createdAt) והחותמת
-// מומרת ל-epoch ms — כדי לשמר בדיוק את הצורה שהלקוח כבר צורך.
+// Access to the `exams` table (HYBRID: metadata in columns + questions as JSONB).
+// snake_case columns are aliased to camelCase (createdBy/createdAt) and the
+// timestamp is converted to epoch ms — to preserve exactly the shape the client
+// already consumes.
 
 import { query } from '../db.js';
 
@@ -17,8 +18,8 @@ const RETURNING = `
             created_at AS "createdAt",
             questions`;
 
-// node-postgres מחזיר TIMESTAMPTZ כאובייקט Date — ממירים ל-epoch ms
-// כדי שהלקוח יקבל מספר (כמו קודם) ו-new Date(...)/מיון ימשיכו לעבוד.
+// node-postgres returns TIMESTAMPTZ as a Date object — convert it to epoch ms
+// so the client gets a number (as before) and new Date(...)/sorting keep working.
 function mapExam(row) {
   if (!row) return null;
   return {
@@ -52,7 +53,8 @@ export async function insert({ id, title, description, status, createdBy, questi
   return mapExam(res.rows[0]);
 }
 
-// עדכון חלקי — בונים SET רק מהשדות שהגיעו (title/description/status/questions).
+// Partial update — build the SET clause only from the fields that were provided
+// (title/description/status/questions).
 export async function update(id, patch) {
   const sets = [];
   const params = [];

@@ -1,6 +1,6 @@
-// תפריט ניווט עליון של האפליקציה.
-// מציג קישורים שונים לפי תפקיד המשתמש (מורה / תלמיד / אורח),
-// וכפתורי כניסה/יציאה/הרשמה לפי מצב ההתחברות.
+// Top navigation menu of the app.
+// Shows different links based on the user's role (teacher / student / guest),
+// and login/logout/register buttons based on the auth state.
 
 import { NavLink, Link } from 'react-router-dom';
 import { useServices } from '../context/ServicesContext.jsx';

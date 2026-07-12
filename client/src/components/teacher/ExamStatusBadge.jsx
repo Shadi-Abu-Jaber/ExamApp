@@ -1,5 +1,6 @@
-// תווית סטטוס לבחינה — מתרגמת את הקוד הפנימי לתווית עברית עם צבע.
-// שימוש בו במקום ב-if מפזרים מקצר את הקוד ב-UI ומבטיח עקביות צבעים.
+// Exam status badge — maps the internal status code to a Hebrew label + color.
+// Using it instead of scattered if-statements keeps the UI code short and
+// ensures consistent colors.
 
 import { EXAM_STATUS } from '../../models/Exam.js';
 
