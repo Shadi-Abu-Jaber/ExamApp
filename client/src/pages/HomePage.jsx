@@ -52,7 +52,9 @@ export default function HomePage({ user }) {
       </div>
 
       <p className="text-center text-muted mt-5 small">
-        גרסה {config.get('appVersion')} · נתוני Mock נשמרים מקומית בדפדפן
+        גרסה {config.get('appVersion')} · {config.get('dataMode') === 'http'
+          ? 'מחובר לשרת'
+          : 'נתוני דמו נשמרים מקומית בדפדפן'}
       </p>
     </div>
   );

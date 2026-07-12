@@ -4,7 +4,7 @@
 
 const DEFAULTS = Object.freeze({
   appName: 'מערכת בחינות אלקטרונית',
-  appVersion: '0.3.0',
+  appVersion: '1.0.0',
   storagePrefix: 'examapp',
   logLevel: 'info',
   mockLatencyMs: 350,
