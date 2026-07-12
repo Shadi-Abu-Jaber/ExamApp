@@ -2,7 +2,7 @@
 // טוענת את ההגשות, ולכל הגשה מבקשת את שם הבחינה (במקביל) כדי להציג
 // טבלה אחת קריאה. ממוינת מהחדש לישן.
 
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useServices } from '../../context/ServicesContext.jsx';
 import { useAuth } from '../../context/AuthContext.jsx';
@@ -22,7 +22,7 @@ export default function ResultsPage() {
           try {
             const exam = await examService.getById(s.examId);
             title = exam.title;
-          } catch (_e) { /* ignore */ }
+          } catch { /* ignore */ }
           const pct = s.total ? Math.round((s.score / s.total) * 100) : 0;
           return { ...s, title, pct };
         })

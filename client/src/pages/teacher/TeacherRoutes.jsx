@@ -1,4 +1,3 @@
-import React from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import TeacherDashboard from './TeacherDashboard.jsx';
 import MyExamsPage from './MyExamsPage.jsx';

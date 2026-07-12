@@ -3,7 +3,6 @@
 // כדי שהמצב יישמר בין רענונים. בטעינה ראשונה זורעים נתוני דמו.
 
 import { Exam, EXAM_STATUS } from '../models/Exam.js';
-import { Question } from '../models/Question.js';
 import { User, USER_ROLE } from '../models/User.js';
 import { Submission } from '../models/Submission.js';
 

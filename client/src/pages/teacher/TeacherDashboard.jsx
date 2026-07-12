@@ -1,7 +1,7 @@
 // דשבורד המורה — מציג סטטיסטיקה מהירה של הבחינות שלו וקישורי פעולה.
 // טוען רק את הבחינות של המורה המחובר (לא של מורים אחרים).
 
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useServices } from '../../context/ServicesContext.jsx';
 import { useAuth } from '../../context/AuthContext.jsx';

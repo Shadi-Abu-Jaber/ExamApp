@@ -3,7 +3,7 @@
 // useServices() מאפשר לכל רכיב לגשת אליהם בלי לייבא אותם ישירות.
 // useNotifyToasts() ממיר את הזרם של Notify למצב React לתצוגה.
 
-import React, { createContext, useContext, useEffect, useState } from 'react';
+import { createContext, useContext, useEffect, useState } from 'react';
 import { getServices } from '../services/ServiceRegistry.js';
 
 const ServicesContext = createContext(null);

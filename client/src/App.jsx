@@ -2,7 +2,6 @@
 // אחראית על: הספקת השירותים לעץ הרכיבים, הצגת תפריט הניווט והוטסטים,
 // וניתוב בין העמודים השונים. מצב המשתמש מנוהל ב-AuthContext.
 
-import React from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import NavigationMenu from './components/NavigationMenu.jsx';
 import ToastViewport from './components/ToastViewport.jsx';

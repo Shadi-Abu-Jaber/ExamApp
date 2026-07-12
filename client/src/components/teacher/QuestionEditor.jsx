@@ -2,7 +2,6 @@
 // מגביל ל-2..6 אפשרויות. עדכון התשובה הנכונה מתעדכן אוטומטית
 // כאשר אפשרות שלפניה נמחקת.
 
-import React from 'react';
 
 export default function QuestionEditor({ index, question, onChange, onRemove }) {
   const updateOption = (optIdx, value) => {

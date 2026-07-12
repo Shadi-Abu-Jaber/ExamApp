@@ -84,7 +84,8 @@ export class ApiGateway {
     const normalized = (email || '').toLowerCase().trim();
     const user = this.mockDb.findOne('users', u => u.email === normalized && u.password === password);
     if (!user) throw new Error('אימייל או סיסמה שגויים');
-    const { password: _, ...profile } = user;
+    const profile = { ...user };
+    delete profile.password;
     return { user: profile, token: null };
   }
 
@@ -106,7 +107,8 @@ export class ApiGateway {
       'users',
       new User({ name: name.trim(), email: normalized, password, role })
     );
-    const { password: _, ...profile } = inserted;
+    const profile = { ...inserted };
+    delete profile.password;
     return { user: profile, token: null };
   }
 

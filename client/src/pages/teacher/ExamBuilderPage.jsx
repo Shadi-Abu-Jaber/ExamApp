@@ -1,7 +1,7 @@
 // עמוד יצירת בחינה חדשה.
 // בחינות חדשות נשמרות תמיד כטיוטה — הפרסום הוא פעולה נפרדת בעמוד העריכה.
 
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useServices } from '../../context/ServicesContext.jsx';
 import { useAuth } from '../../context/AuthContext.jsx';

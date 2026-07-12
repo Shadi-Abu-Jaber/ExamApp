@@ -2,7 +2,7 @@
 // מציגה רק בחינות בסטטוס "מפורסם", ומסמנת בחינות שכבר הוגשו על ידי
 // המשתמש כדי שיוכל להבחין בקלות (אפשר להיבחן שוב).
 
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useServices } from '../../context/ServicesContext.jsx';
 import { useAuth } from '../../context/AuthContext.jsx';

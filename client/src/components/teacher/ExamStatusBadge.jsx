@@ -1,7 +1,6 @@
 // תווית סטטוס לבחינה — מתרגמת את הקוד הפנימי לתווית עברית עם צבע.
 // שימוש בו במקום ב-if מפזרים מקצר את הקוד ב-UI ומבטיח עקביות צבעים.
 
-import React from 'react';
 import { EXAM_STATUS } from '../../models/Exam.js';
 
 const LABEL = {

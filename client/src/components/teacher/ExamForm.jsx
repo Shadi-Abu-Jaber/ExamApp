@@ -1,7 +1,7 @@
 // טופס בחינה גנרי המשמש גם ליצירה וגם לעריכה.
 // אחראי על ולידציה מקומית (כותרת + isValid לכל שאלה) לפני שליחה ל-service.
 
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Question } from '../../models/Question.js';
 import QuestionEditor from './QuestionEditor.jsx';
 

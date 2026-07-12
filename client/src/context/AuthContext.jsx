@@ -2,7 +2,7 @@
 // עוטף את AuthService ושומר את המשתמש המחובר ב-state כך שכל הרכיבים
 // מתעדכנים אוטומטית כשמתחברים/יוצאים.
 
-import React, { createContext, useContext, useState, useCallback } from 'react';
+import { createContext, useContext, useState, useCallback } from 'react';
 import { useServices } from './ServicesContext.jsx';
 
 const AuthContext = createContext(null);

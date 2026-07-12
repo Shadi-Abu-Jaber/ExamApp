@@ -1,7 +1,6 @@
 // עמוד הבית — נקודת הכניסה הראשית של האפליקציה.
 // מציג כרטיסים נפרדים למורים ולתלמידים; הקישור מתעדכן לפי מצב ההתחברות.
 
-import React from 'react';
 import { Link } from 'react-router-dom';
 import { useServices } from '../context/ServicesContext.jsx';
 

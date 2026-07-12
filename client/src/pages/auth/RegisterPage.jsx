@@ -2,7 +2,7 @@
 // מקבל שם, אימייל, סיסמה ותפקיד; קורא ל-AuthContext.register,
 // ובהצלחה מתחבר אוטומטית ומנווט לדשבורד המתאים לתפקיד.
 
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext.jsx';
 import { useServices } from '../../context/ServicesContext.jsx';
