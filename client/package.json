@@ -1,11 +1,14 @@
 {
-  "name": "client",
+  "name": "examapp-client",
   "private": true,
-  "version": "0.0.0",
+  "version": "1.0.0",
   "type": "module",
+  "description": "ExamApp frontend — React (Vite) SPA with a dual-mode (mock / HTTP) data layer.",
   "scripts": {
     "dev": "vite",
-    "build": "vite build"
+    "build": "vite build",
+    "preview": "vite preview",
+    "lint": "eslint ."
   },
   "dependencies": {
     "react": "^19.2.5",
@@ -22,5 +25,8 @@
     "eslint-plugin-react-refresh": "^0.5.2",
     "globals": "^17.5.0",
     "vite": "^8.0.10"
+  },
+  "engines": {
+    "node": ">=18"
   }
 }
