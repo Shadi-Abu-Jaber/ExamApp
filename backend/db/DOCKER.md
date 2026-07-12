@@ -1,87 +1,80 @@
 # ExamApp — Local PostgreSQL with Docker
 
-מדריך להרמת בסיס נתונים לוקאלי (PostgreSQL) באמצעות Docker, בדיוק לפי
-הדוגמה שנבנתה בשיעור: Postgres רץ בתוך Docker, וה-Node/Express רץ על ה-host
-ומתחבר אליו דרך `localhost:5432`.
+A guide to running a local database (PostgreSQL) with Docker: Postgres runs inside Docker while Node/Express runs on the host and connects to it via `localhost:5432`.
 
 ---
 
-## שלוש דרכי עבודה עם הנתונים (Data configurations)
+## Three ways to work with data (data configurations)
 
-הפרויקט תומך בשלוש תצורות. אותם משתני `PG_*` משרתים את כולן — רק הערכים משתנים:
+The project supports three setups. The same `PG_*` variables serve all of them — only the values change:
 
-| # | תצורה | מתי משתמשים | איך מפעילים |
-|---|--------|-------------|-------------|
-| 1 | **JSON לוקאלי** | פיתוח מהיר ללא DB כלל | הלקוח ב-`dataMode: 'mock'` (ברירת מחדל) / השרת עם ה-store בזיכרון (`src/db.js`) |
-| 2 | **DATABASE מרוחק** | ענן / DB משותף | ממלאים `PG_HOST` וסיסמה של השרת המרוחק ב-`backend/.env` |
-| 3 | **DATABASE לוקאלי (Docker)** | פיתוח מול Postgres אמיתי | `npm run db:up` (ראו למטה) |
+| # | Configuration | When to use | How to enable |
+|---|---------------|-------------|---------------|
+| 1 | **Mock (no DB)** | Fast, offline development | Client in `dataMode: 'mock'` (default) — no server or database needed |
+| 2 | **Remote / managed DB** | Cloud or shared database | Set `DATABASE_URL` (TLS), or point the `PG_*` vars at the remote host, in `backend/.env` |
+| 3 | **Local DB (Docker)** | Developing against a real Postgres | `npm run db:up` (see below) |
 
-> המעבר בין "JSON לוקאלי" ל"שרת" נעשה בצד הלקוח דרך `VITE_DATA_MODE=mock|http`
-> (או `localStorage['examapp::dataMode']`). ראו `GEMINI.md`.
-
----
-
-## דרישות מקדימות
-
-* Docker מותקן ופועל (`docker --version`).
-* קובץ `backend/.env` (העתיקו מ-`backend/.env.example`).
-* פעם אחת: `cd backend && npm install` (מוריד את חבילת `pg`).
+> The client switches between "mock" and "server" via `VITE_DATA_MODE=mock|http` (or `localStorage['examapp::dataMode']`). See `CLAUDE.md`. In http mode the server requires a reachable PostgreSQL — local (config 3) or remote (config 2).
 
 ---
 
-## אפשרות א' — Docker Compose (מומלץ)
+## Prerequisites
 
-מתוך תיקיית `backend/`:
+* Docker installed and running (`docker --version`).
+* A `backend/.env` file (copy from `backend/.env.example`).
+* Once: `cd backend && npm install` (installs the `pg` package).
+
+---
+
+## Option A — Docker Compose (recommended)
+
+From the `backend/` directory:
 
 ```bash
-npm run db:up        # docker compose up -d  (בונה את התמונה בפעם הראשונה)
-npm run db:test      # node db/connect-test.js — מאמת חיבור + שליפות
-npm run db:logs      # לוגים חיים של ה-DB
-npm run db:down      # עצירה (הנתונים נשמרים ב-volume)
-npm run db:reset     # מחיקת נתונים + הרמה מחדש (מריץ את סקריפטי ה-init שוב)
+npm run db:up        # docker compose up -d  (builds the image on first run)
+npm run db:test      # node db/connect-test.js — verifies connection + queries
+npm run db:logs      # live DB logs
+npm run db:down      # stop (data is kept in the volume)
+npm run db:reset     # wipe data + bring back up (re-runs the init scripts)
 ```
 
-יתרון: `named volume` שומר את הנתונים בין הפעלות, יש `healthcheck`, ופורט
-ה-host ניתן להגדרה דרך `PG_PORT`.
+Benefits: a named volume persists data across runs, there is a healthcheck, and the host port is configurable via `PG_PORT`.
 
 ---
 
-## אפשרות ב' — Docker "ידני" (כמו בדוגמת השיעור, ללא compose)
+## Option B — Docker "manually" (without compose)
 
-מתוך תיקיית `backend/`:
+From the `backend/` directory:
 
 ```bash
-# 1. בניית התמונה מתוך ./db/Dockerfile
+# 1. Build the image from ./db/Dockerfile
 docker build -t examapp-postgres ./db
 
-# 2. הרצת הקונטיינר (מפרסם את הפורט 5432 ל-host)
+# 2. Run the container (publishes port 5432 to the host)
 docker run --name examapp-pg -p 5432:5432 -d examapp-postgres
 
-# 3. בדיקה שהקונטיינר רץ
+# 3. Check the container is running
 docker ps
 
-# 4. אימות חיבור + שליפת נתונים מתוך Node
+# 4. Verify connection + fetch data from Node
 node db/connect-test.js
 
-# עצירה וניקוי
+# Stop and clean up
 docker stop examapp-pg && docker rm examapp-pg
 ```
 
 ---
 
-## מה קורה בהעלאה הראשונה?
+## What happens on first startup?
 
-תמונת `postgres:16` מריצה אוטומטית כל קובץ `*.sql` שנמצא ב-
-`/docker-entrypoint-initdb.d/` (לפי סדר אלפביתי), אבל **רק כשה-data ריק**:
+The `postgres:16` image automatically runs every `*.sql` file in `/docker-entrypoint-initdb.d/` (in alphabetical order), but **only when the data directory is empty**:
 
-1. `01_schema.sql` — יוצר את הטבלאות `users` / `exams` / `submissions`
-   (עמודת `questions` היא `JSONB` — מודל היברידי).
-2. `02_seed.sql` — מזריע 2 משתמשי דמו + 2 בחינות דמו.
+1. `01_schema.sql` — creates the `users` / `exams` / `submissions` tables (the `questions` column is `JSONB` — the hybrid model).
+2. `02_seed.sql` — seeds 2 demo users + 2 demo exams.
 
-לכן ברגע שהקונטיינר עולה, `examapp` כבר מלא ומוכן. כדי להריץ את ה-init
-מחדש (למשל אחרי שינוי הסכמה) — `npm run db:reset` (מוחק את ה-volume).
+So as soon as the container comes up, `examapp` is populated and ready. To re-run the init scripts (e.g. after a schema change), use `npm run db:reset` (which removes the volume).
 
-פרטי החיבור המוגדרים בתמונה (תואמים ל-`.env.example`):
+Connection details baked into the image (matching `.env.example`):
 
 ```
 host=localhost  port=5432  user=postgres  password=postgres  database=examapp
@@ -89,14 +82,11 @@ host=localhost  port=5432  user=postgres  password=postgres  database=examapp
 
 ---
 
-## פתרון תקלות
+## Troubleshooting
 
-* **`port is already allocated` / חיבור נכשל** — כבר רץ Postgres מקומי על 5432.
-  הרימו את Docker על פורט אחר:
+* **`port is already allocated` / connection fails** — a local Postgres is already running on 5432. Bring Docker up on another port:
   ```bash
-  PG_PORT=5433 npm run db:up      # ואז עדכנו PG_PORT=5433 ב-backend/.env
+  PG_PORT=5433 npm run db:up      # then set PG_PORT=5433 in backend/.env
   ```
-* **שינוי לסכמה לא נתפס** — סקריפטי ה-init רצים רק על data ריק. הריצו
-  `npm run db:reset` כדי למחוק את ה-volume ולזרוע מחדש.
-* **`password authentication failed`** — ודאו ש-`PG_PASSWORD` ב-`backend/.env`
-  תואם לזה של הקונטיינר (ברירת מחדל `postgres`).
+* **Schema change not picked up** — the init scripts only run against an empty data directory. Run `npm run db:reset` to drop the volume and re-seed. (If you changed `01`/`02` themselves, also rebuild the image: `docker compose down -v && docker compose up -d --build`.)
+* **`password authentication failed`** — make sure `PG_PASSWORD` in `backend/.env` matches the container's (default `postgres`).
