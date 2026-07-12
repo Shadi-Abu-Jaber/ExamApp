@@ -25,6 +25,16 @@ export function createApp() {
     next();
   });
 
+  // Friendly root response — this is an API, not a website. Anyone who opens the
+  // API URL directly gets pointed to the app and the available endpoints instead
+  // of a bare 404.
+  app.get('/', (_req, res) => res.json({
+    service: 'examapp-api',
+    status: 'ok',
+    app: process.env.CORS_ORIGIN?.split(',')[0] || 'https://examapp-1-wfnn.onrender.com',
+    endpoints: ['/health', '/auth', '/exams', '/submissions', '/users'],
+  }));
+
   app.get('/health', (_req, res) => res.json({ ok: true, service: 'examapp-server' }));
 
   app.use('/auth', authRoutes);
