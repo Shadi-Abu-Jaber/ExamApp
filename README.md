@@ -4,6 +4,8 @@ An online examination platform (Hebrew / RTL UI) where **teachers** create, publ
 
 Full-stack app: **React 19 (Vite) SPA + Express API + PostgreSQL**, with JWT authentication and server-side role/ownership authorization.
 
+> 📄 **Project submission overview:** [SUBMISSION.md](SUBMISSION.md) — features, architecture, diagrams, milestones, and deployment in one place.
+
 ## Live demo
 
 - **App:** https://examapp-1-wfnn.onrender.com
